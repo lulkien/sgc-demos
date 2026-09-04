@@ -1,0 +1,24 @@
+# Build recipes for sgc-drm-c / sgc-drm-cpp (meson). The samples link
+# libsgc.a statically, built in the libsgc-c repo (sibling checkout:
+# ../../libsgc-c), so each recipe builds that first.
+#
+#   just       host build (meson debug profile)
+#   just board aarch64 board build (gnu release, meson cross-file)
+#   just clean remove the meson build dirs
+
+LIBSGC := "../../libsgc-c"
+
+build:
+    cargo build --manifest-path {{LIBSGC}}/Cargo.toml
+    if [ -d build ]; then meson setup --reconfigure build -Dsgc_dir={{LIBSGC}}; else meson setup build -Dsgc_dir={{LIBSGC}}; fi
+    meson compile -C build
+
+# The board runs glibc (gnu aarch64): build libsgc.a for the gnu target, then
+# meson with the cross file, release profile.
+board:
+    CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-unknown-linux-gnu-gcc cargo build --release --target aarch64-unknown-linux-gnu --manifest-path {{LIBSGC}}/Cargo.toml
+    if [ -d build-aarch64 ]; then meson setup --reconfigure build-aarch64 --cross-file=aarch64-cross.txt -Dbuildtype=release -Dsgc_dir={{LIBSGC}}; else meson setup build-aarch64 --cross-file=aarch64-cross.txt -Dbuildtype=release -Dsgc_dir={{LIBSGC}}; fi
+    meson compile -C build-aarch64
+
+clean:
+    rm -rf build build-aarch64

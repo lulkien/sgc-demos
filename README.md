@@ -16,6 +16,7 @@
 - c-samples           C/C++ (meson): sgc-drm-c / sgc-drm-cpp, link libsgc.a
                       from the libsgc-c repo (-Dsgc_dir=...)
 
-Build each from its own directory (`cargo build --release` in the rust
-demos, `meson setup build && meson compile -C build` in c-samples) — see
-the per-project comments for cross/board builds.
+Build each from its own directory with its Justfile (`just` for the
+current host, `just build-musl-aarch64` / `just build-gnu-aarch64` for the
+board; c-samples: `just` and `just board`) — see the per-project comments
+for cross/board builds.

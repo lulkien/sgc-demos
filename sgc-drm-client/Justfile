@@ -1,0 +1,26 @@
+# Build recipes for the current host and the board (aarch64), mirroring the
+# simple-graphics-controller linkage convention: musl = fully static, gnu =
+# dynamically linked (the board runs glibc).
+#
+#   just                     release build for the current host
+#   just build-musl-aarch64  fully static aarch64 musl build (board)
+#   just build-gnu-aarch64   dynamic aarch64 (gnu) build (board)
+#   just clean               remove ./target
+
+default: build
+
+build:
+    cargo build --release
+
+# arm64 system libs live in the arm64 pkg-config dir; pure-rust deps here
+# (libsgc-rs + libc), so nothing to allow cross for.
+build-gnu-aarch64:
+    cargo build --release --target aarch64-unknown-linux-gnu
+
+# Fully static aarch64 musl build (musl.cc toolchain via ~/.cargo/bin
+# symlinks); runs on any Alpine aarch64.
+build-musl-aarch64:
+    cargo build --release --target aarch64-unknown-linux-musl
+
+clean:
+    cargo clean

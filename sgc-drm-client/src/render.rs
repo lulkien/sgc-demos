@@ -47,9 +47,14 @@ fn drm_ioctl(dir: u32, nr: u32, size: usize) -> libc::c_ulong {
 }
 
 /// `DRM_IOWR` ioctl (kernel writes the struct back).
+///
+/// `req` is built as `c_ulong`; libc's ioctl request parameter type differs
+/// per libc/target (glibc aarch64: `c_ulong`, musl aarch64: `c_int`), so cast
+/// through `libc::Ioctl`. The bit pattern survives either way — the kernel
+/// takes the command as an unsigned int.
 unsafe fn ioctl_wr<T>(fd: RawFd, nr: u32, arg: &mut T) -> io::Result<()> {
     let req = drm_ioctl(3, nr, size_of::<T>());
-    if unsafe { libc::ioctl(fd, req, arg) } < 0 {
+    if unsafe { libc::ioctl(fd, req as libc::Ioctl, arg) } < 0 {
         Err(io::Error::last_os_error())
     } else {
         Ok(())
@@ -59,7 +64,7 @@ unsafe fn ioctl_wr<T>(fd: RawFd, nr: u32, arg: &mut T) -> io::Result<()> {
 /// `DRM_IOW` ioctl (write-only).
 unsafe fn ioctl_w<T>(fd: RawFd, nr: u32, arg: &T) -> io::Result<()> {
     let req = drm_ioctl(1, nr, size_of::<T>());
-    if unsafe { libc::ioctl(fd, req, arg) } < 0 {
+    if unsafe { libc::ioctl(fd, req as libc::Ioctl, arg) } < 0 {
         Err(io::Error::last_os_error())
     } else {
         Ok(())

@@ -1,0 +1,35 @@
+# Build recipes for the current host and the board (aarch64), mirroring the
+# simple-graphics-controller linkage convention: musl = fully static, gnu =
+# dynamically linked (the board runs glibc).
+#
+#   just                     release build for the current host
+#   just build-musl-aarch64  fully static aarch64 musl build (board)
+#   just build-gnu-aarch64   dynamic aarch64 (gnu) build (board)
+#   just clean               remove ./target
+#
+# Default renderer is software (see Cargo.toml). For the GL flavor build
+# with the femtovg feature instead:
+#   cargo build --release --no-default-features --features femtovg \
+#       --target aarch64-unknown-linux-gnu
+
+default: build
+
+build:
+    cargo build --release
+
+# arm64 system libs (freetype for fontique, board libgbm for the GL flavor)
+# live in the arm64 pkg-config dir; allow cross-linking against them.
+pkg_env := 'PKG_CONFIG_ALLOW_CROSS=1 PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig'
+
+# Dynamically linked aarch64 (gnu) build — the board runs glibc. fontique
+# dlopens libfontconfig at runtime, so no libfontconfig link-time dep.
+build-gnu-aarch64:
+    {{pkg_env}} cargo build --release --target aarch64-unknown-linux-gnu
+
+# Fully static aarch64 musl build (musl.cc toolchain via ~/.cargo/bin
+# symlinks); runs on any Alpine aarch64.
+build-musl-aarch64:
+    cargo build --release --target aarch64-unknown-linux-musl
+
+clean:
+    cargo clean
