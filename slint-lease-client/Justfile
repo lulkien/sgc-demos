@@ -21,10 +21,14 @@ build:
 # live in the arm64 pkg-config dir; allow cross-linking against them.
 pkg_env := 'PKG_CONFIG_ALLOW_CROSS=1 PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig'
 
-# Dynamically linked aarch64 (gnu) build — the board runs glibc. fontique
-# dlopens libfontconfig at runtime, so no libfontconfig link-time dep.
+# Dynamically linked aarch64 (gnu) build — the board runs glibc. Font libs
+# (freetype etc. for fontique) are statically linked from the arm64 pkg-config
+# dir: the board's minimal image has no libfreetype. fontique dlopens
+# libfontconfig at runtime, so no libfontconfig link-time dep. (The femtovg GL
+# flavor needs dynamic board libgbm instead: drop PKG_CONFIG_ALL_STATIC=1 for
+# that build.)
 build-gnu-aarch64:
-    {{pkg_env}} cargo build --release --target aarch64-unknown-linux-gnu
+    {{pkg_env}} PKG_CONFIG_ALL_STATIC=1 cargo build --release --target aarch64-unknown-linux-gnu
 
 # Fully static aarch64 musl build (musl.cc toolchain via ~/.cargo/bin
 # symlinks); runs on any Alpine aarch64.
