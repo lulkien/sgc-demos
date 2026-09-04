@@ -1,0 +1,16 @@
+# Standalone demo (own project, no workspace): a DRM demo client for
+# simple-graphics-controller — acquires the first advertised DRM card lease
+# from @sgc and runs a raw-ioctl modeset + paint loop on the granted fd.
+# The empty [workspace] table opts this crate out of any enclosing workspace.
+[package]
+name = "sgc-drm-client"
+version = "0.1.0"
+edition = "2024"
+license = "Unlicense"
+description = "DRM demo client for simple-graphics-controller"
+
+[workspace]
+
+[dependencies]
+libsgc-rs = { git = "https://github.com/lulkien/libsgc-rs.git" }
+libc = "0.2"

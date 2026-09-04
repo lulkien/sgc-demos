@@ -1,0 +1,43 @@
+[package]
+name = "slint-lease-client"
+description = "Demo: run a Slint UI on a DRM lease granted by simple-graphics-controller"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Standalone demo (own project, no workspace): depends on the slint fork
+# (branch sgc-lease-1.17) as a git dependency. The empty [workspace] table
+# opts this crate out of any enclosing workspace.
+[workspace]
+#
+# The app knows NOTHING about the backend or the sgc session: it enables the
+# slint `backend-linuxsgc` feature (plus a renderer) and the backend selector
+# auto-installs the linuxsgc backend on first window creation — which connects
+# to @sgc, acquires the lease and survives revoke/re-grant on its own. No
+# set_platform, no backend crate import, no SgcClient. Run with
+# SLINT_BACKEND=linuxsgc, or leave the env empty (linuxsgc is the only backend
+# enabled here, so it is the default).
+#
+# Build flavors (mirror the sgc linkage convention):
+#   software renderer -> musl, fully static (fontconfig dlopened at runtime)
+#       cargo build --release --target aarch64-unknown-linux-musl
+#   femtovg (GL)      -> gnu, dynamic (links board libgbm; fontconfig dlopen)
+#       PKG_CONFIG_ALLOW_CROSS=1 PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig \
+#       cargo build --release --no-default-features --features femtovg \
+#           --target aarch64-unknown-linux-gnu
+# Both need CARGO_TARGET_..._RUSTFLAGS="-C linker=<cross-gcc>" unless the
+# linker is configured for the target.
+
+[features]
+default = ["software"]
+software = ["slint/renderer-software"]
+femtovg = ["slint/renderer-femtovg"]
+
+[dependencies]
+slint = { git = "https://github.com/lulkien/slint.git", branch = "sgc-lease-1.17", default-features = false, features = [
+    "std",
+    "backend-linuxsgc",
+    "compat-1-2",
+    "unstable-fontique-010",
+] }
+anyhow = "1"

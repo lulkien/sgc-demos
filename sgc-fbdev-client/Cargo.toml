@@ -1,0 +1,17 @@
+# Standalone demo (own project, no workspace): an fbdev demo client for
+# simple-graphics-controller — acquires the fbdev resource from @sgc and
+# draws on it via linfb. The empty [workspace] table opts this crate out of
+# any enclosing workspace.
+[package]
+name = "sgc-fbdev-client"
+version = "0.1.0"
+edition = "2024"
+license = "Unlicense"
+description = "fbdev demo client for simple-graphics-controller"
+
+[workspace]
+
+[dependencies]
+libsgc-rs = { git = "https://github.com/lulkien/libsgc-rs.git" }
+linfb = { git = "https://github.com/lulkien/linfb" }
+libc = "0.2"
