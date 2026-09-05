@@ -1,0 +1,41 @@
+// The lease-client UI. Compiled to Rust at build time by build.rs
+// (slint-build); the crate's renderer/input flavor matrix lives in Cargo.toml.
+
+export component MainWindow inherits Window {
+    background: #10131f;
+    in-out property <length> anim-x: 0px;
+    in-out property <length> anim-y: 0px;
+    in-out property <color> square-color: #e94560;
+
+    Rectangle {
+        x: anim-x;
+        y: anim-y;
+        width: 140px;
+        height: 140px;
+        border-radius: 12px;
+        background: square-color;
+
+        // Inner circle that also changes color slightly
+        Rectangle {
+            x: 20px;
+            y: 20px;
+            width: 30px;
+            height: 30px;
+            border-radius: 15px;
+            background: square-color.brighter(0.5);
+        }
+
+        // Add a subtle glow effect
+        Rectangle {
+            x: -10px;
+            y: -10px;
+            width: 160px;
+            height: 160px;
+            border-radius: 22px;
+            background: transparent;
+            border-color: square-color.darker(0.5);
+            border-width: 2px;
+            opacity: 0.3;
+        }
+    }
+}

@@ -52,3 +52,8 @@ slint = { git = "https://github.com/lulkien/slint.git", branch = "sgc-lease-1.17
 ] }
 anyhow = "1"
 
+# Compiles ui/main.slint to Rust in build.rs; same fork rev as the `slint`
+# runtime above so the generated code matches the compiled runtime.
+[build-dependencies]
+slint-build = { git = "https://github.com/lulkien/slint.git", branch = "sgc-lease-1.17" }
+
