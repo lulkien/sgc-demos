@@ -522,7 +522,7 @@ dependencies = [
 [[package]]
 name = "const-field-offset"
 version = "0.2.0"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "const-field-offset-macro",
  "field-offset",
@@ -531,7 +531,7 @@ dependencies = [
 [[package]]
 name = "const-field-offset-macro"
 version = "0.2.0"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1357,7 +1357,7 @@ checksum = "48ce8546b993eaf241d69ded33b1be6d205dd9857ec879d9d18bd05d3676e144"
 [[package]]
 name = "i-slint-backend-linuxkms"
 version = "1.17.1"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "bytemuck",
  "calloop 0.14.4",
@@ -1379,7 +1379,7 @@ dependencies = [
 [[package]]
 name = "i-slint-backend-linuxsgc"
 version = "1.17.1"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "bytemuck",
  "calloop 0.14.4",
@@ -1403,7 +1403,7 @@ dependencies = [
 [[package]]
 name = "i-slint-backend-selector"
 version = "1.17.1"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "cfg-if",
  "cfg_aliases",
@@ -1420,7 +1420,7 @@ dependencies = [
 [[package]]
 name = "i-slint-backend-testing"
 version = "1.17.1"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "cfg_aliases",
  "i-slint-common",
@@ -1432,7 +1432,7 @@ dependencies = [
 [[package]]
 name = "i-slint-backend-winit"
 version = "1.17.1"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "block2 0.6.2",
  "bytemuck",
@@ -1476,7 +1476,7 @@ dependencies = [
 [[package]]
 name = "i-slint-common"
 version = "1.17.1"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "derive_more",
  "fontique",
@@ -1492,7 +1492,7 @@ dependencies = [
 [[package]]
 name = "i-slint-compiler"
 version = "1.17.1"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "annotate-snippets",
  "by_address",
@@ -1518,7 +1518,7 @@ dependencies = [
 [[package]]
 name = "i-slint-core"
 version = "1.17.1"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "auto_enums",
  "bitflags 2.13.1",
@@ -1568,7 +1568,7 @@ dependencies = [
 [[package]]
 name = "i-slint-core-macros"
 version = "1.17.1"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "quote",
  "serde_json",
@@ -1578,7 +1578,7 @@ dependencies = [
 [[package]]
 name = "i-slint-renderer-femtovg"
 version = "1.17.1"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "cfg-if",
  "const-field-offset",
@@ -1599,7 +1599,7 @@ dependencies = [
 [[package]]
 name = "i-slint-renderer-skia"
 version = "1.17.1"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "bytemuck",
  "cfg-if",
@@ -1635,7 +1635,7 @@ dependencies = [
 [[package]]
 name = "i-slint-renderer-software"
 version = "1.17.1"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "bytemuck",
  "clru",
@@ -2121,7 +2121,7 @@ dependencies = [
 [[package]]
 name = "libsgc-rs"
 version = "0.1.0"
-source = "git+https://github.com/lulkien/libsgc-rs.git#9dc9bb79d76cec06c39f6157a34a6a7bec39eb89"
+source = "git+https://github.com/lulkien/libsgc-rs.git#6e0725c805741eede159d1c03092c4a800345713"
 dependencies = [
  "libc",
  "sendfd",
@@ -3444,7 +3444,7 @@ checksum = "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e"
 [[package]]
 name = "simple-graphics-protocol"
 version = "0.1.0"
-source = "git+https://github.com/lulkien/simple-graphics-protocol.git#cd67a6b028a0cb43a53f8a943db1ec3dc0e33efd"
+source = "git+https://github.com/lulkien/simple-graphics-protocol.git#c76d051e67ea4411f4520429a3c1254e539b4483"
 dependencies = [
  "nix 0.29.0",
  "rmp-serde",
@@ -3525,7 +3525,7 @@ checksum = "0c790de23124f9ab44544d7ac05d60440adc586479ce501c1d6d7da3cd8c9cf5"
 [[package]]
 name = "slint"
 version = "1.17.1"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "const-field-offset",
  "i-slint-backend-selector",
@@ -3553,7 +3553,7 @@ dependencies = [
 [[package]]
 name = "slint-macros"
 version = "1.17.1"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "i-slint-compiler",
  "proc-macro2",
@@ -4154,7 +4154,7 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 [[package]]
 name = "vtable"
 version = "0.4.0"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "const-field-offset",
  "portable-atomic",
@@ -4165,7 +4165,7 @@ dependencies = [
 [[package]]
 name = "vtable-macro"
 version = "0.4.0"
-source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#40554b2aacea374049c3e7bbc677afcbc00c62d9"
+source = "git+https://github.com/lulkien/slint.git?branch=sgc-lease-1.17#1c6d54e21c7585067d964ae45a33ab66a16202cc"
 dependencies = [
  "proc-macro2",
  "quote",
