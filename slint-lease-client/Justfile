@@ -5,6 +5,10 @@
 #   just                     release build for the current host
 #   just build-musl-aarch64  fully static aarch64 musl build (board)
 #   just build-gnu-aarch64   dynamic aarch64 (gnu) build (board)
+#   just build-gnu-aarch64-input
+#                            gnu build with input support (--features input)
+#                            needs aarch64 libinput.pc to build; the board
+#                            needs libinput10 installed to run
 #   just clean               remove ./target
 #
 # Default renderer is software (see Cargo.toml). For the GL flavor build
@@ -29,6 +33,13 @@ pkg_env := 'PKG_CONFIG_ALLOW_CROSS=1 PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/
 # that build.)
 build-gnu-aarch64:
     {{pkg_env}} PKG_CONFIG_ALL_STATIC=1 cargo build --release --target aarch64-unknown-linux-gnu
+
+# gnu build with input support (--features input): libinput over the
+# @sgc-granted devices. Cross-build needs an aarch64 libinput.pc in the
+# pkg-config dir; the board needs libinput10 (apt install libinput10). Only
+# meaningful with the gnu flavor — musl static cannot link system libinput.
+build-gnu-aarch64-input:
+    {{pkg_env}} PKG_CONFIG_ALL_STATIC=1 cargo build --release --features input --target aarch64-unknown-linux-gnu
 
 # Fully static aarch64 musl build (musl.cc toolchain via ~/.cargo/bin
 # symlinks); runs on any Alpine aarch64.

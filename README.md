@@ -14,7 +14,9 @@ SgcClient.
 - sgc-fbdev-client — Rust: acquire the fbdev resource from @sgc, draw via
   linfb (input + animation)
 - slint-lease-client — Rust: a Slint UI on a DRM lease via the linuxsgc
-  backend (slint fork git dep, feature backend-linuxsgc)
+  backend (slint fork git dep, feature backend-linuxsgc; add --features input
+  for keyboard/mouse/touch from the granted devices — gnu builds only, board
+  needs libinput10)
 - c-samples — C/C++ (Meson): sgc-drm-c / sgc-drm-cpp, link libsgc.a from the
   libsgc-c repo (-Dsgc_dir=...)
 

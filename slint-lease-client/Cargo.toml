@@ -25,6 +25,10 @@ publish = false
 #       PKG_CONFIG_ALLOW_CROSS=1 PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig \
 #       cargo build --release --no-default-features --features femtovg \
 #           --target aarch64-unknown-linux-gnu
+#   input (keyboard/mouse/touch) -> gnu only, adds `--features input`
+#       (just build-gnu-aarch64-input). Links the system libinput: the board
+#       needs `apt install libinput10`, and the cross build needs an aarch64
+#       libinput.pc in the pkg-config dir. Never combine with musl.
 # Both need CARGO_TARGET_..._RUSTFLAGS="-C linker=<cross-gcc>" unless the
 # linker is configured for the target.
 
@@ -32,6 +36,10 @@ publish = false
 default = ["software"]
 software = ["slint/renderer-software"]
 femtovg = ["slint/renderer-femtovg"]
+# Receive pointer/keyboard/touch input from the @sgc-granted devices (via
+# libinput, inside the linuxsgc backend). NOT in default: dynamically linked
+# gnu builds only — musl static cannot link the system libinput.
+input = ["slint/backend-linuxsgc-libinput"]
 
 [dependencies]
 slint = { git = "https://github.com/lulkien/slint.git", branch = "sgc-lease-1.17", default-features = false, features = [
@@ -41,3 +49,4 @@ slint = { git = "https://github.com/lulkien/slint.git", branch = "sgc-lease-1.17
     "unstable-fontique-010",
 ] }
 anyhow = "1"
+
