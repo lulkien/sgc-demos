@@ -26,9 +26,11 @@ publish = false
 #       cargo build --release --no-default-features --features femtovg \
 #           --target aarch64-unknown-linux-gnu
 #   input (keyboard/mouse/touch) -> gnu only, adds `--features input`
-#       (just build-gnu-aarch64-input). Links the system libinput: the board
-#       needs `apt install libinput10`, and the cross build needs an aarch64
-#       libinput.pc in the pkg-config dir. Never combine with musl.
+#       (just build-gnu-aarch64-input). Links libinput + libxkbcommon
+#       dynamically: the board needs libinput10 + libxkbcommon0, and the
+#       cross build needs aarch64 libinput.pc + libxkbcommon.pc in the
+#       pkg-config dir (libinput-dev:arm64 + libxkbcommon-dev:arm64).
+#       Never combine with musl.
 # Both need CARGO_TARGET_..._RUSTFLAGS="-C linker=<cross-gcc>" unless the
 # linker is configured for the target.
 
