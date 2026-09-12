@@ -1,0 +1,26 @@
+# /etc/agh-dash/config.toml
+#
+# Owned by root, mode 600 - it holds the AdGuard Home credentials:
+#   install -m 600 config.toml /etc/agh-dash/config.toml
+#
+# The endpoint is AdGuard Home's admin/API address (the web UI port, default
+# 8080). When the dashboard runs on the same machine as AdGuard Home, use
+# loopback: the credentials then never leave the host.
+
+base_url = "http://127.0.0.1:8080"
+
+# AdGuard Home credentials (HTTP basic auth).
+username = "admin"
+password = "change-me"
+
+# Statistics poll interval [s]. The dashboard is read-only; 5 s keeps it lively
+# without hammering the API (AdGuard's counters move per hour/day anyway).
+refresh_secs = 5
+
+# Per-request timeout [ms]. Fetches are asynchronous (libcurl multi driven from
+# the LVGL timer), so this never blocks rendering - but it does mean a slow
+# frame delays the pump, hence a generous budget here.
+timeout_ms = 10000
+
+# Only meaningful for an https base_url.
+verify_tls = false

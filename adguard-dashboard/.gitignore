@@ -1,0 +1,4 @@
+# lv_conf.h is committed - it is this project's own LVGL config, so a normal
+# build needs nothing else. scripts/gen-lv-conf.sh regenerates it if the lvgl
+# ref changes.
+build*/

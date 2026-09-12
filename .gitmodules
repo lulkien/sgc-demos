@@ -1,0 +1,6 @@
+[submodule "adguard-dashboard/third_party/tomlc99"]
+	path = adguard-dashboard/third_party/tomlc99
+	url = https://github.com/cktan/tomlc99.git
+[submodule "adguard-dashboard/third_party/cJSON"]
+	path = adguard-dashboard/third_party/cJSON
+	url = https://github.com/DaveGamble/cJSON.git
