@@ -25,8 +25,11 @@ LVGL app in `../adguard-dashboard`; the two are alternatives (one DRM lease).
 Renderer: `femtovg` (OpenGL over gbm/EGL, i.e. the Mali GPU) with the software
 renderer compiled in as well — the backend is `try_femtovg_then_software`, so GL
 is preferred and CPU is the fallback. `--no-default-features --features software`
-builds the CPU-only flavor. No `input` feature: read-only app, and a client must
-not hold a device it cannot consume.
+builds the CPU-only flavor. Input is opt-in via `--features input` (dynamic gnu
+builds only, board needs libinput10 + libxkbcommon0): the dashboard stays
+read-only, but the backend draws the mouse cursor with the CPU renderer and
+Ctrl+Alt+Backspace quits. Off by default — a client must not hold a device it
+cannot consume.
 
 ## Verified today
 

@@ -2,6 +2,9 @@
 #
 #   just                    release build for the current host
 #   just build-gnu-aarch64  dynamic aarch64 (gnu) build for the board
+#   just build-gnu-aarch64-input
+#                           dynamic aarch64 (gnu) build with input support
+#                           (--features input): mouse cursor + Ctrl+Alt+Backspace
 #   just clean              remove ./target
 #
 # The board runs glibc. The default build renders on the GPU (femtovg over
@@ -24,6 +27,14 @@ build-gnu-aarch64:
 # CPU flavor: survives a lease revoke; statically links the font libs.
 build-gnu-aarch64-software:
     {{pkg_env}} PKG_CONFIG_ALL_STATIC=1 cargo build --release --target aarch64-unknown-linux-gnu --no-default-features --features software
+
+# GPU flavor + input support (--features input): the mouse cursor is drawn and
+# Ctrl+Alt+Backspace quits the app. NO PKG_CONFIG_ALL_STATIC=1 here - libinput
+# and libxkbcommon must stay dynamically linked (a static libinput is out of
+# scope). The board needs libinput10 + libxkbcommon0; the cross build needs
+# aarch64 libinput.pc + xkbcommon.pc in the pkg-config dir.
+build-gnu-aarch64-input:
+    {{pkg_env}} cargo build --release --target aarch64-unknown-linux-gnu --features input
 
 clean:
     cargo clean

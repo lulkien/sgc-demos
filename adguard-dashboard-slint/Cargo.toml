@@ -26,6 +26,16 @@ publish = false
 default = ["femtovg", "software"]
 software = ["slint/renderer-software"]
 femtovg = ["slint/renderer-femtovg"]
+# Receive pointer/keyboard/touch events from the @sgc-granted devices (libinput
+# inside the linuxsgc backend). The dashboard is still read-only - nothing
+# responds to a click - but the backend puts the granted devices to work: the
+# software renderer composites the mouse cursor, and Ctrl+Alt+Backspace quits
+# the event loop (the kiosk's escape hatch). NOT in default: a client that
+# cannot consume a resource must not hold one, so a featureless build leaves
+# the mouse and keyboard available to other clients (the daemon's first-owner
+# policy would otherwise hand them to this app). gnu/glibc only - a static musl
+# build cannot link libinput.
+input = ["slint/backend-linuxsgc-libinput"]
 
 [dependencies]
 slint = { git = "https://github.com/lulkien/slint.git", branch = "sgc-lease-1.17", default-features = false, features = [

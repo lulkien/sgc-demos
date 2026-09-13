@@ -52,9 +52,14 @@ Two deliberate choices follow from that:
   `--no-default-features --features software` for the CPU flavor that parks and
   resumes instead. Both renderers stay compiled in, so the window uses the GPU
   while the offscreen `--self-check` still uses the software renderer.
-* **no input feature**. The dashboard is read-only, and a client must not hold a
-  resource it cannot consume: without it the mouse and keyboard stay available
-  to other clients, the same reason the LVGL app sets `LV_SGC_INPUT 0`.
+* **input is opt-in** (`--features input`, dynamic gnu builds only). Nothing in
+  the dashboard reacts to a click — it stays a read-only view — but with the
+  devices granted the backend puts them to work: the software renderer
+  composites the mouse cursor, and Ctrl+Alt+Backspace quits the event loop (the
+  kiosk's escape hatch). It is off by default because a client that cannot
+  consume a resource must not hold one: a featureless build leaves the mouse and
+  keyboard to whoever can use them, the same reason the LVGL app sets
+  `LV_SGC_INPUT 0`. The board needs `libinput10` + `libxkbcommon0`.
 
 ## Data
 
@@ -91,6 +96,7 @@ small), which suits an AdGuard Home on the loopback.
     just                            # release build for the current host
     just build-gnu-aarch64          # the board: GPU (femtovg), dynamic aarch64/gnu
     just build-gnu-aarch64-software # the board: CPU renderer (survives a revoke)
+    just build-gnu-aarch64-input    # the board: GPU + input (cursor, Ctrl+Alt+Backspace)
 
 The arm64 build needs `cargo`, the `aarch64-unknown-linux-gnu` target, and the
 arm64 pkg-config files for freetype (fontique); see the Justfile and
