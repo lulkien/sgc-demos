@@ -18,6 +18,9 @@
 //!
 //!     key <NAME>[+<NAME>...]   press the chord, sync, release it reversed, sync
 //!     tap <NAME>               one key down + up
+//!     press <NAME>             hold a key down (release it explicitly later) —
+//!     release <NAME>           …which is how a modifier is held ACROSS a steal:
+//!                              the held-down state is what a revoke has to drop
 //!     move <dx> <dy>           relative move (mouse only)
 //!     click                    BTN_LEFT down + up (mouse only)
 //!     touch <x> <y>            ABS_X/ABS_Y + BTN_TOUCH down, then up (touch only)
@@ -102,6 +105,14 @@ fn dispatch(device: &mut VirtualDevice, line: &str) -> Result<String, String> {
             events.push(syn());
             device.emit(&events).map_err(|e| e.to_string())?;
             Ok(format!("{command} {chord}"))
+        }
+        "press" | "release" => {
+            let name = parts.next().ok_or("expected <NAME>")?;
+            let key = parse_key(name)?;
+            let value = i32::from(command == "press");
+            let events = [key_event(key.code(), value), syn()];
+            device.emit(&events).map_err(|e| e.to_string())?;
+            Ok(format!("{command} {name}"))
         }
         "move" => {
             let dx: i32 = parts
