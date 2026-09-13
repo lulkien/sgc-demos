@@ -52,6 +52,12 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 toml = "0.8"
 anyhow = "1"
+# Levels follow RUST_LOG (default `info`): the per-refresh progress line is
+# `debug`, so the journal keeps only state changes and failures unless
+# RUST_LOG=debug. env_logger without its default features: no timestamps or
+# colour of its own, and systemd stamps the journal anyway.
+log = "0.4"
+env_logger = { version = "0.11", default-features = false }
 
 # Compiles ui/main.slint to Rust; same fork rev as the runtime dependency above.
 [build-dependencies]

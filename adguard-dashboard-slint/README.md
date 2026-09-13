@@ -120,6 +120,11 @@ The board image ships neither fontconfig nor freetype, so the app registers
 `DejaVuSans.ttf` into the text pipeline itself at startup (the same trick
 `slint-lease-client` uses); without that file, text has no font source.
 
+Logging follows `RUST_LOG` (`log` + `env_logger`, default `info`). The
+per-refresh progress line is `debug`, so the journal carries only state changes
+and failures by default; `RUST_LOG=debug` on the command line — or in a unit
+drop-in — brings one line per refresh back.
+
 ## Self-check (verify by reading pixels, not by looking)
 
     adguard-dashboard-slint --self-check [--config <path>]

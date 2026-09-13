@@ -4,9 +4,10 @@
 //! The backend owns the whole @sgc session - connecting, acquiring the lease,
 //! pumping it, and surviving a revoke by parking and resuming the display stack
 //! - so this app never names the backend or SgcClient; it enables the
-//! `backend-linuxsgc` feature and the backend selector does the rest. Only the
-//! software renderer flavor can be preempted in-process: the femtovg/GL flavor
-//! exits on a revoke because its GL context dies with the lease fd.
+//! `backend-linuxsgc` feature and the backend selector does the rest. Both
+//! renderer flavors survive a revoke: the CPU one re-inits its dumb-buffer
+//! display, the femtovg/GL one drops and rebuilds its EGL/GBM stack on the
+//! fresh lease fd.
 //!
 //! Data flows on a worker thread (fetch `/control/stats` and `/control/status`
 //! every `refresh_secs`, push the outcome over a channel) while the UI thread
@@ -33,6 +34,11 @@ slint::include_modules!();
 const UI_TICK_MS: u64 = 200;
 
 fn main() -> Result<()> {
+    // RUST_LOG drives the level, defaulting to `info`: routine progress lines
+    // (one per refresh) are `debug`, so the unit's RUST_LOG=info journal shows
+    // only state changes and failures.
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
+
     let args: Vec<String> = std::env::args().collect();
     let cfg = Config::load(&config::path_from_args(&args))?;
 
@@ -69,19 +75,19 @@ fn main() -> Result<()> {
                 match outcome {
                     FetchOutcome::Ok(snapshot) => {
                         view::fill(&ui, &snapshot, &source);
-                        println!(
-                            "[agh-slint] refreshed: {} queries, {} blocked",
+                        log::debug!(
+                            "refreshed: {} queries, {} blocked",
                             snapshot.queries,
                             snapshot.blocked_total()
                         );
                         latest = Some(snapshot);
                     }
                     FetchOutcome::CredentialsRejected => {
-                        eprintln!("[agh-slint] refresh failed: credentials rejected");
+                        log::warn!("refresh failed: credentials rejected");
                         view::set_error(&ui, "credentials rejected");
                     }
                     FetchOutcome::Failed(msg) => {
-                        eprintln!("[agh-slint] refresh failed: {msg}");
+                        log::warn!("refresh failed: {msg}");
                         view::set_error(&ui, "stale");
                     }
                 }
@@ -140,8 +146,8 @@ pub(crate) fn register_font() {
         let blob = fontique::Blob::new(std::sync::Arc::new(bytes));
         let mut collection = slint::fontique_010::shared_collection();
         let count = collection.register_fonts(blob, None).len();
-        println!("[agh-slint] registered {count} font(s) from {path}");
+        log::info!("registered {count} font(s) from {path}");
         return;
     }
-    eprintln!("[agh-slint] warning: no DejaVuSans.ttf found - text will need fontconfig");
+    log::warn!("no DejaVuSans.ttf found - text will need fontconfig");
 }
