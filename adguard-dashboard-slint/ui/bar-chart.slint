@@ -1,0 +1,34 @@
+import { Theme } from "theme.slint";
+
+// Bars growing from the bottom, one per bucket. Slint has no chart widget, so
+// each bucket is a column made of a transparent spacer plus the bar: the two
+// vertical stretches set the height, which keeps it resolution independent.
+//
+// Geometry mirrors LVGL, so both dashboards draw the same picture. LVGL gives
+// every point a block of (width + pad_column) / count and draws the bar inside
+// that block, with pad_column taken from the default theme's chart style:
+// LV_DPX(10) at the fork's default 130 dpi is (130 * 10 + 80) / 160 = 8 px.
+// A column layout with 8 px spacing works out to the same bar width and the same
+// gaps, and the bar radius is LV_DPX(3) = 2 px.
+export component BarChart inherits Rectangle {
+    in property <[float]> values: [];       // normalised 0..1
+    in property <color> bar-color: Theme.series-queries;
+
+    background: transparent;
+
+    HorizontalLayout {
+        spacing: 8px;
+        for value in values: VerticalLayout {
+            spacing: 0px;
+            Rectangle {
+                vertical-stretch: max(0.0, 1.0 - value);
+                background: transparent;
+            }
+            Rectangle {
+                vertical-stretch: max(0.02, value);
+                background: bar-color;
+                border-radius: 2px;
+            }
+        }
+    }
+}

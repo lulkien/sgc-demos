@@ -1,0 +1,9 @@
+import { Theme } from "theme.slint";
+
+// The frame every dashboard section sits in. Padding stays with the layouts
+// inside the using component, because Slint only honours padding on layouts.
+export component Card inherits Rectangle {
+    background: Theme.card;
+    border-radius: 10px;
+    @children
+}

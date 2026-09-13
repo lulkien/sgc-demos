@@ -1,0 +1,31 @@
+// Palette, type scale and spacing. Mirrors the LVGL dashboard (see
+// ../adguard-dashboard/src/ui.c) so both screens look the same, and the values
+// are repeated as (r, g, b) triples in ../src/view.rs for the offscreen
+// self-check, which counts pixels per colour.
+
+export global Theme {
+    out property <color> page: #0F1419;
+    out property <color> card: #19212A;
+    out property <color> grid: #2B3644;
+    out property <color> text: #E6EDF3;
+    out property <color> muted: #8B98A5;
+    out property <color> bad: #E5534B;
+    out property <color> protection-on: #2F9E63;
+    out property <color> protection-off: #D5473F;
+    out property <color> on-badge: #F2F6FA;
+
+    // series colours, in the order the chart row shows them
+    out property <color> series-queries: #4FA3E3;
+    out property <color> series-filtered: #E8843C;
+    out property <color> series-malware: #A86FE0;
+    out property <color> series-adult: #4FD1A5;
+
+    // one step larger than the content a section heads
+    out property <length> title-size: 20px;
+    out property <length> cell-size: 16px;
+
+    out property <length> page-padding: 16px;
+    out property <length> page-gap: 12px;
+    out property <length> card-padding: 12px;
+    out property <length> card-gap: 14px;
+}

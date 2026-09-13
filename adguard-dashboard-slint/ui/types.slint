@@ -1,0 +1,22 @@
+// What the UI binds to. Built on the Rust side (src/view.rs) from an AdGuard
+// snapshot; slint-build turns each of these into a matching Rust struct.
+
+export struct RowData {
+    label: string,
+    value: string,
+}
+
+export struct ChartData {
+    title: string,
+    total: string,
+    color: color,
+    values: [float],   // normalised 0..1 - the bar heights
+    empty: bool,       // series has no activity: draws nothing, so say so
+}
+
+export struct TableData {
+    title: string,
+    col0: string,
+    col1: string,
+    rows: [RowData],
+}

@@ -1,0 +1,51 @@
+[package]
+name = "adguard-dashboard-slint"
+description = "AdGuard Home statistics dashboard as a Slint UI, on a DRM lease from simple-graphics-controller"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Standalone project (no workspace), mirroring slint-lease-client: slint comes
+# from the fork as a git dependency, and the crate opts out of any enclosing
+# workspace.
+[workspace]
+
+# Renderer matrix:
+#   femtovg (default) -> OpenGL over gbm/EGL, i.e. the board's Mali GPU
+#                        (panfrost). The backend is try_femtovg_then_software:
+#                        GL is preferred, software is the fallback when GL init
+#                        fails. A lease revoke is FATAL for the GL flavor - its
+#                        EGL/GL context is created on the lease fd, so a steal
+#                        ends the process (run it under a restarting unit if the
+#                        screen has to come back by itself).
+#   software          -> CPU rendering that parks and resumes across a revoke.
+# Both are compiled in deliberately: the window uses the GPU, and the offscreen
+# `--self-check` uses the software renderer directly (it needs no display).
+# Software-only build: --no-default-features --features software
+[features]
+default = ["femtovg", "software"]
+software = ["slint/renderer-software"]
+femtovg = ["slint/renderer-femtovg"]
+
+[dependencies]
+slint = { git = "https://github.com/lulkien/slint.git", branch = "sgc-lease-1.17", default-features = false, features = [
+    "std",
+    "backend-linuxsgc",
+    "compat-1-2",
+    "unstable-fontique-010",
+] }
+# Plain HTTP only (default-features = false drops TLS): the board's AdGuard Home
+# is served on the loopback, and a TLS stack would bloat an arm64 cross build.
+ureq = { version = "2", default-features = false }
+base64 = "0.22"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+anyhow = "1"
+
+# Compiles ui/main.slint to Rust; same fork rev as the runtime dependency above.
+[build-dependencies]
+slint-build = { git = "https://github.com/lulkien/slint.git", branch = "sgc-lease-1.17" }
+
+[profile.release]
+strip = true

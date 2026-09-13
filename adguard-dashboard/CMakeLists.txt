@@ -16,13 +16,16 @@ set(SGC_REF   "800762c79e2ab45a234f231477b69b36b6c380a4"   CACHE STRING "libsgc-
 set(SGC_ARCHIVE "" CACHE FILEPATH "prebuilt libsgc.a - skips fetching and building the crate")
 set(SGC_INCLUDE_DIR "" CACHE PATH "libsgc headers when using a prebuilt archive (default /usr/include)")
 
-if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/lv_conf.h)
-    message(FATAL_ERROR "lv_conf.h missing - it is committed in this repo; regenerate it with "
-                        "scripts/gen-lv-conf.sh --sgc --no-input <lvgl checkout> lv_conf.h")
+# The LVGL config for this build. It is committed as lv_conf.h; pass another
+# path (-DLV_BUILD_CONF_PATH=...) to build a variant, e.g. the GBM flavor.
+if(NOT EXISTS ${LV_BUILD_CONF_PATH})
+    message(FATAL_ERROR "LVGL config not found: ${LV_BUILD_CONF_PATH} - the repo's lv_conf.h is "
+                        "committed; regenerate it with scripts/gen-lv-conf.sh --sgc --no-input "
+                        "<lvgl checkout> lv_conf.h")
 endif()
 
-file(READ ${CMAKE_CURRENT_SOURCE_DIR}/lv_conf.h LV_CONF_TEXT)
-if(LV_CONF_TEXT MATCHES "LV_USE_SGC[ \t]+1")
+file(READ ${LV_BUILD_CONF_PATH} LV_CONF_TEXT)
+if(LV_CONF_TEXT MATCHES "LV_USE_SGC +1")
     set(CONSUMER_SGC ON)
 endif()
 
@@ -52,6 +55,13 @@ if(NOT CURL_FOUND)
 endif()
 pkg_check_modules(DRM REQUIRED libdrm)
 
+# lv_conf.h decides the scanout buffer flavor: GBM/DMA-BUF needs libgbm linked
+# (lv_linux_drm.c calls gbm_bo_create/gbm_bo_map directly).
+if(LV_CONF_TEXT MATCHES "LV_USE_LINUX_DRM_GBM_BUFFERS +1")
+    pkg_check_modules(GBM REQUIRED libgbm)
+    set(CONSUMER_GBM ON)
+endif()
+
 include(FetchContent)
 if(POLICY CMP0169)
     # libsgc-c has no CMakeLists.txt, so it is fetched with FetchContent_Populate
@@ -68,7 +78,8 @@ else()
         GIT_SHALLOW    TRUE)
 endif()
 
-set(LV_BUILD_CONF_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lv_conf.h CACHE PATH "" FORCE)
+set(LV_BUILD_CONF_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lv_conf.h CACHE PATH
+    "lv_conf.h for this build; pass another conf to build a variant (e.g. GBM)")
 set(CONFIG_LV_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(CONFIG_LV_BUILD_DEMOS    OFF CACHE BOOL "" FORCE)
 set(CONFIG_LV_USE_THORVG_INTERNAL OFF CACHE BOOL "" FORCE)
@@ -76,6 +87,10 @@ FetchContent_MakeAvailable(lvgl)
 
 # headers for the lvgl targets (the drivers are compiled inside liblvgl)
 target_include_directories(lvgl SYSTEM PUBLIC ${DRM_INCLUDE_DIRS})
+if(CONSUMER_GBM)
+    target_include_directories(lvgl SYSTEM PUBLIC ${GBM_INCLUDE_DIRS})
+    message(STATUS "dashboard: GBM/DMA-BUF scanout buffers (libgbm ${GBM_VERSION})")
+endif()
 if(CONSUMER_SGC)
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
         set(_sgc_arch aarch64)
@@ -162,6 +177,9 @@ target_include_directories(adguard_dashboard PRIVATE
     lvgl)
 
 target_link_libraries(adguard_dashboard PRIVATE lvgl ${DRM_LIBRARIES} ${CURL_LIBRARIES} m)
+if(CONSUMER_GBM)
+    target_link_libraries(adguard_dashboard PRIVATE ${GBM_LIBRARIES})
+endif()
 if(CURL_LINK_OPTIONS)
     target_link_options(adguard_dashboard PRIVATE ${CURL_LINK_OPTIONS})
 endif()

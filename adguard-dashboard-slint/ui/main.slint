@@ -1,0 +1,122 @@
+// The dashboard page: header, protection badge, four charts, two table rows and
+// a footer. It only arranges components that live in their own files
+// (theme.slint, types.slint, *-card.slint), so this file stays a layout.
+//
+// Compiled to Rust by build.rs; slint-build follows the imports, so the types in
+// types.slint become Rust structs (see ../src/view.rs).
+
+import { Theme } from "theme.slint";
+import { ChartData, TableData } from "types.slint";
+import { ChartCard } from "chart-card.slint";
+import { TableCard } from "table-card.slint";
+import { ProtectionBadge } from "protection-badge.slint";
+
+export component MainWindow inherits Window {
+    // The board's panel. The linuxsgc backend overrides this with the lease's
+    // mode; the offscreen --self-check renders at exactly this size.
+    width: 1720px;
+    height: 1440px;
+    background: Theme.page;
+
+    in property <string> status-text: "starting";
+    in property <color> status-color: Theme.muted;
+    in property <bool> protection-known: false;
+    in property <bool> protection-on: false;
+    in property <string> protection-text: "Protection: unknown";
+    in property <string> footer-version: "AdGuard Home";
+    in property <string> footer-source: "";
+    in property <[ChartData]> charts: [];
+    in property <TableData> general;
+    in property <TableData> top-clients;
+    in property <TableData> top-queried;
+    in property <TableData> top-blocked;
+
+    Rectangle {
+        width: 100%;
+        height: 100%;
+
+        VerticalLayout {
+            padding: Theme.page-padding;
+            spacing: Theme.page-gap;
+
+            // header: title on the left, refresh status on the right
+            HorizontalLayout {
+                spacing: 14px;
+                Text {
+                    text: "AdGuard Home statistics";
+                    color: Theme.text;
+                    font-size: 24px;
+                    horizontal-stretch: 1;
+                }
+                Text {
+                    text: root.status-text;
+                    color: root.status-color;
+                    font-size: Theme.cell-size;
+                    horizontal-alignment: right;
+                    horizontal-stretch: 1;
+                }
+            }
+
+            // the badge sits on its own line, left-aligned
+            HorizontalLayout {
+                spacing: 0px;
+                ProtectionBadge {
+                    known: root.protection-known;
+                    on: root.protection-on;
+                    label: root.protection-text;
+                }
+                Rectangle { horizontal-stretch: 1; background: transparent; }
+            }
+
+            // row 1: the four chart cards.
+            //
+            // The width is computed, not stretched: a layout child keeps its
+            // content's preferred width and horizontal-stretch only splits what
+            // is left, so the card with the longest title used to come out
+            // wider (378 / 379 / 470 / 425 px). min-width: 0px does not override
+            // that in Slint; an explicit share of the row does.
+            HorizontalLayout {
+                spacing: Theme.page-gap;
+                vertical-stretch: 32;
+                for chart in root.charts: ChartCard {
+                    data: chart;
+                    width: (parent.width - (root.charts.length - 1) * Theme.page-gap) / root.charts.length;
+                }
+            }
+
+            // row 2: general statistics | top clients
+            HorizontalLayout {
+                spacing: Theme.page-gap;
+                vertical-stretch: 30;
+                TableCard { data: root.general; width: (parent.width - Theme.page-gap) / 2; }
+                TableCard { data: root.top-clients; width: (parent.width - Theme.page-gap) / 2; }
+            }
+
+            // row 3: top queried domains | top blocked domains
+            HorizontalLayout {
+                spacing: Theme.page-gap;
+                vertical-stretch: 38;
+                TableCard { data: root.top-queried; width: (parent.width - Theme.page-gap) / 2; }
+                TableCard { data: root.top-blocked; width: (parent.width - Theme.page-gap) / 2; }
+            }
+
+            // footer: version | endpoint
+            HorizontalLayout {
+                spacing: 14px;
+                Text {
+                    text: root.footer-version;
+                    color: Theme.muted;
+                    font-size: 14px;
+                    horizontal-stretch: 1;
+                }
+                Text {
+                    text: root.footer-source;
+                    color: Theme.muted;
+                    font-size: 14px;
+                    horizontal-alignment: right;
+                    horizontal-stretch: 1;
+                }
+            }
+        }
+    }
+}

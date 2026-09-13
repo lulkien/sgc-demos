@@ -1,0 +1,96 @@
+import { Theme } from "theme.slint";
+import { TableData, RowData } from "types.slint";
+import { Card } from "card.slint";
+import { SectionTitle } from "section-title.slint";
+
+// One data row: label and value in columns stretched 3:1, the counterpart of the
+// LVGL table whose column widths are fitted to the card. Long labels elide
+// rather than wrap, so the row height stays uniform.
+//
+// The height is explicit on purpose: a layout child would otherwise stretch to
+// fill the card, which makes every row 52px tall with the text pinned to the top
+// and a dead gap under it. `alignment: center` puts the text in the middle of
+// its own row, and the height is content-sized for a 16px line plus padding.
+component TableRow inherits HorizontalLayout {
+    in property <RowData> entry;
+
+    height: 34px;
+    spacing: 8px;
+
+    Text {
+        text: entry.label;
+        color: Theme.text;
+        font-size: Theme.cell-size;
+        vertical-alignment: center;
+        horizontal-stretch: 3;
+        overflow: elide;
+    }
+    Text {
+        text: entry.value;
+        color: Theme.text;
+        font-size: Theme.cell-size;
+        vertical-alignment: center;
+        horizontal-stretch: 1;
+        horizontal-alignment: right;
+    }
+}
+
+component TableHead inherits HorizontalLayout {
+    in property <string> col0: "";
+    in property <string> col1: "";
+
+    height: 30px;
+    spacing: 8px;
+
+    Text {
+        text: col0;
+        color: Theme.muted;
+        font-size: Theme.cell-size;
+        vertical-alignment: center;
+        horizontal-stretch: 3;
+        overflow: elide;
+    }
+    Text {
+        text: col1;
+        color: Theme.muted;
+        font-size: Theme.cell-size;
+        vertical-alignment: center;
+        horizontal-stretch: 1;
+        horizontal-alignment: right;
+    }
+}
+
+// A titled table with a hairline under every row. Rows come from the model: an
+// empty list simply leaves the card blank, which is the intended look when the
+// server has nothing to report yet.
+export component TableCard inherits Card {
+    in property <TableData> data;
+
+    VerticalLayout {
+        padding: Theme.card-padding;
+        spacing: Theme.card-gap;
+
+        SectionTitle { text: data.title; }
+
+        VerticalLayout {
+            spacing: 0px;
+            TableHead { col0: data.col0; col1: data.col1; }
+            for row in data.rows: VerticalLayout {
+                spacing: 0px;
+                TableRow { entry: row; }
+                Rectangle {
+                    height: 1px;
+                    background: Theme.grid;
+                }
+            }
+
+            // Absorbs the card's leftover height so the table stays pinned to the
+            // top. Without a flexible child, a Slint layout packs its content at
+            // the end, which drags the title and every row down with it.
+            Rectangle {
+                vertical-stretch: 1;
+                background: transparent;
+            }
+        }
+    }
+}

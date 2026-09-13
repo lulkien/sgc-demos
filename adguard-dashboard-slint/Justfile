@@ -1,0 +1,29 @@
+# Build recipes for the host and the board (aarch64), mirroring slint-lease-client.
+#
+#   just                    release build for the current host
+#   just build-gnu-aarch64  dynamic aarch64 (gnu) build for the board
+#   just clean              remove ./target
+#
+# The board runs glibc. The default build renders on the GPU (femtovg over
+# gbm/EGL) and links the board's GL stack dynamically; the software flavor
+# statically links the font libs instead (the board image has no libfreetype and
+# no fontconfig, and the app registers DejaVuSans.ttf itself at startup).
+
+default: build
+
+build:
+    cargo build --release
+
+pkg_env := 'PKG_CONFIG_ALLOW_CROSS=1 PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig'
+
+# GPU flavor (femtovg over gbm/EGL): links the board's libgbm/libEGL/libGLESv2
+# dynamically, so no PKG_CONFIG_ALL_STATIC here.
+build-gnu-aarch64:
+    {{pkg_env}} cargo build --release --target aarch64-unknown-linux-gnu
+
+# CPU flavor: survives a lease revoke; statically links the font libs.
+build-gnu-aarch64-software:
+    {{pkg_env}} PKG_CONFIG_ALL_STATIC=1 cargo build --release --target aarch64-unknown-linux-gnu --no-default-features --features software
+
+clean:
+    cargo clean

@@ -1,0 +1,8 @@
+import { Theme } from "theme.slint";
+
+// Section heading: a step larger than the content it heads, so a card reads as
+// title + body rather than one block of text.
+export component SectionTitle inherits Text {
+    color: Theme.muted;
+    font-size: Theme.title-size;
+}

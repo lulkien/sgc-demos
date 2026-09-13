@@ -1,0 +1,19 @@
+# AdGuard Home credentials and refresh settings. The same file is read by the
+# LVGL dashboard (`adguard-dashboard`), so either app can be pointed at it.
+# Install as /etc/agh-dash/config.toml, root-owned, mode 0600:
+#
+#     install -d -m 700 /etc/agh-dash
+#     install -m 600 config.example.toml /etc/agh-dash/config.toml
+#
+# The password can also come from the AGH_DASH_PASSWORD environment variable,
+# which overrides the value here (handy for a quick try without storing it).
+
+base_url = "http://127.0.0.1:8080"
+username = "admin"
+password = "changeme"
+
+# How often the statistics are fetched.
+refresh_secs = 5
+
+# Request budget: the first fetch races the first full paint, so keep it roomy.
+timeout_ms = 10000

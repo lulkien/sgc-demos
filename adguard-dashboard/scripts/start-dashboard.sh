@@ -11,7 +11,7 @@ set -eu
 install -d -m 700 /etc/agh-dash
 pkill -f '^/root/adguard-dashboard-gnu$' 2>/dev/null || true
 sleep 1
-setsid /root/adguard-dashboard-gnu > /tmp/agh-dash.log 2>&1 < /dev/null
+setsid -f /root/adguard-dashboard-gnu > /tmp/agh-dash.log 2>&1 < /dev/null || true
 sleep 2
 
 pid=$(pgrep -f '^/root/adguard-dashboard-gnu$' | head -1)
