@@ -1,0 +1,21 @@
+# Input-path harness: two tools that together answer "does input still work
+# after a revoke/re-grant?" without a human touching the board.
+#
+#   just                    release build for the current host
+#   just build-gnu-aarch64  dynamic aarch64 (gnu) build for the board
+#   just clean              remove ./target
+#
+# The board runs glibc and needs the uinput module loaded (`modprobe uinput`)
+# plus /dev/uinput; both tools run as root (uinput and the @sgc socket).
+# No pkg-config deps: evdev/uinput link libc only.
+
+default: build
+
+build:
+    cargo build --release
+
+build-gnu-aarch64:
+    cargo build --release --target aarch64-unknown-linux-gnu
+
+clean:
+    cargo clean

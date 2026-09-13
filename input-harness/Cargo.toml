@@ -1,0 +1,28 @@
+[package]
+name = "input-harness"
+version = "0.1.0"
+edition = "2024"
+license = "Unlicense"
+description = "Virtual input devices (uinput) and a resource steal probe, to verify @sgc input delivery across a revoke/re-grant"
+publish = false
+
+# Standalone project (own Cargo.toml, no workspace), like the other demos: the
+# @sgc client comes from libsgc-rs as a git dependency.
+[workspace]
+
+# Two tools, one project:
+#   uinput-inject  creates a virtual keyboard/mouse/touchscreen via /dev/uinput
+#                  and injects events on command (stdin). The device exists only
+#                  while the process holds it, so start it BEFORE the daemon: the
+#                  daemon enumerates /dev/input once at startup (no hot-plug).
+#   sgc-steal      takes one @sgc resource for N ms and lets go — FairQueue makes
+#                  that preempt the app, so it drives the revoke/re-grant cycle.
+[dependencies]
+libsgc-rs = { git = "https://github.com/lulkien/libsgc-rs.git" }
+# uinput + evdev types in one dependency (VirtualDevice::builder, AttributeSet,
+# KeyCode, InputEvent). No default features: the tokio-gated parts of the crate
+# are not used here and uinput needs no seat/udev. Needs root + /dev/uinput.
+evdev = { version = "0.13", default-features = false }
+
+[profile.release]
+strip = true

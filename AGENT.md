@@ -14,6 +14,7 @@ Nothing here builds against a sibling checkout: dependencies arrive as git refs,
 | `c-samples` | DRM (Meson) | `sgc-drm-c`, `sgc-drm-cpp` | C and C++ clients against the libsgc C ABI; takes the archive and headers through `-Dsgc_dir=` (predates the vendoring rule below) |
 | `adguard-dashboard` | DRM + LVGL (CMake) | `LV_USE_SGC`, no input | A real application: AdGuard Home's statistics page in LVGL, rendered through the daemon via the lvgl fork. Vendored libsgc, submoduled cJSON/tomlc99, committed lv_conf.h, `--self-check` pixel read-back |
 | `adguard-dashboard-slint` | DRM + Slint (Cargo) | `backend-linuxsgc`, `femtovg` (GPU) + `software` fallback, `input` opt-in | The same dashboard as a Slint UI: same layout, same `/etc/agh-dash/config.toml`, worker thread for the API, offscreen `--self-check` that counts pixels; `--features input` adds the mouse cursor and Ctrl+Alt+Backspace |
+| `input-harness` | test tooling (no client) | `uinput-inject`, `sgc-steal` | Virtual keyboard/mouse/touchscreen via `/dev/uinput` plus a resource steal probe, driving the revoke/re-grant cycle; `scripts/input-resume-test.sh` asserts input delivery survives a re-grant (negative control included) |
 
 ## Shared Resource Ownership Model (all demos)
 - **Client holds the canonical fd** — `SgcClient::acquire(resource)` stores the granted fd in `held: HashMap<Resource, OwnedFd>`; client owns it
