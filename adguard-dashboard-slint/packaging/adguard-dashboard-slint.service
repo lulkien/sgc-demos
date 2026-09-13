@@ -1,0 +1,33 @@
+[Unit]
+Description=AdGuard Home statistics dashboard (Slint, @sgc client)
+Documentation=https://github.com/lulkien/sgc-demos
+# An @sgc client is sgc-or-die: without the daemon this exits at startup, and it
+# renders on the DRM lease the daemon brokers.
+After=simple-graphics-controller.service
+Requires=simple-graphics-controller.service
+
+[Service]
+Type=simple
+ExecStart=/root/adguard-slint
+
+# A lease revoke is survivable: the renderer drops the revoked EGL/GBM stack and
+# rebuilds it on the re-granted lease, so a steal parks the dashboard instead of
+# killing it. This covers what is left - a rebuild that fails (a mode the panel
+# cannot do), the daemon restarting (the client's socket dies with it), and
+# config errors. The screen comes back in about two seconds.
+Restart=always
+RestartSec=2
+
+# The board build lives in /root, which the default hardening hides; the binary
+# then dies at EXEC with status=203 and a misleading "No such file or directory".
+ProtectHome=no
+User=root
+Group=root
+
+# Same reasoning as the daemon unit: do not hide the devices this app brokers,
+# and let it open /dev/dri directly (it takes a lease, not a master).
+Environment=RUST_LOG=info
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target
