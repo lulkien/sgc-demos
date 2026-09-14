@@ -18,7 +18,7 @@ publish = false
 #   sgc-steal      takes one @sgc resource for N ms and lets go — FairQueue makes
 #                  that preempt the app, so it drives the revoke/re-grant cycle.
 [dependencies]
-libsgc-rs = "0.1"
+libsgc-rs = "0.2"
 # uinput + evdev types in one dependency (VirtualDevice::builder, AttributeSet,
 # KeyCode, InputEvent). No default features: the tokio-gated parts of the crate
 # are not used here and uinput needs no seat/udev. Needs root + /dev/uinput.

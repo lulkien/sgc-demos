@@ -12,6 +12,6 @@ description = "fbdev demo client for simple-graphics-controller"
 [workspace]
 
 [dependencies]
-libsgc-rs = "0.1"
+libsgc-rs = "0.2"
 linfb = { git = "https://github.com/lulkien/linfb" }
 libc = "0.2"

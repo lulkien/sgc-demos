@@ -68,7 +68,12 @@ file — convenient for trying it out without storing a secret anywhere.
 * libsgc - the vendored archive and headers in `third_party/libsgc` (see its
   README for provenance). Other architectures fetch and build `libsgc-c` by git
   ref (`-DSGC_REF`); `-DSGC_ARCHIVE=<libsgc.a>` links one built elsewhere, e.g.
-  from the libsgc-dev package
+  from the libsgc-dev package. A **shared** build is the same option with the
+  `.so` (`-DSGC_ARCHIVE=.../release/libsgc.so`, 23 MB of archive becomes a 720 KB
+  library and the app shrinks from ~7 MB to ~1.5 MB): it records
+  `NEEDED libsgc.so.0`, so the target needs the library installed —
+  `install -m755 libsgc.so /usr/local/lib/libsgc.so.0 && ldconfig`, which is what
+  the `libsgc` runtime package provides.
 * git submodules: cJSON 1.7.18 (MIT), tomlc99 (MIT)
 * vendored in-tree: curl 8.14.1 public headers (curl licence), libsgc.a
 

@@ -12,5 +12,5 @@ description = "DRM demo client for simple-graphics-controller"
 [workspace]
 
 [dependencies]
-libsgc-rs = "0.1"
+libsgc-rs = "0.2"
 libc = "0.2"

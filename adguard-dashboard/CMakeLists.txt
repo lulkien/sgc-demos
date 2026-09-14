@@ -13,8 +13,8 @@ set(LVGL_REF   "sgc/v9.5"                            CACHE STRING "lvgl fork bra
 set(LVGL_ARCHIVE_URL ""                              CACHE STRING "fetch this archive instead of cloning")
 set(SGC_REPO  "https://github.com/lulkien/libsgc-c.git"    CACHE STRING "libsgc-c repository")
 set(SGC_REF   "800762c79e2ab45a234f231477b69b36b6c380a4"   CACHE STRING "libsgc-c commit, tag or branch")
-set(SGC_ARCHIVE "" CACHE FILEPATH "prebuilt libsgc.a - skips fetching and building the crate")
-set(SGC_INCLUDE_DIR "" CACHE PATH "libsgc headers when using a prebuilt archive (default /usr/include)")
+set(SGC_ARCHIVE "" CACHE FILEPATH "prebuilt libsgc (libsgc.a, or libsgc.so for a shared build) - skips fetching and building the crate")
+set(SGC_INCLUDE_DIR "" CACHE PATH "libsgc headers when using a prebuilt lib (default /usr/include). A shared libsgc.so is loaded at run time: install it on the target (e.g. /usr/local/lib/libsgc.so.0 + ldconfig) or set LD_LIBRARY_PATH")
 
 # The LVGL config for this build. It is committed as lv_conf.h; pass another
 # path (-DLV_BUILD_CONF_PATH=...) to build a variant, e.g. the GBM flavor.
@@ -153,7 +153,7 @@ if(CONSUMER_SGC)
     endif()
 
     if(NOT EXISTS ${SGC_ARCHIVE})
-        message(FATAL_ERROR "libsgc.a not found at ${SGC_ARCHIVE}")
+        message(FATAL_ERROR "libsgc not found at ${SGC_ARCHIVE}")
     endif()
     target_include_directories(lvgl SYSTEM PUBLIC ${SGC_INCLUDE_DIR})
     message(STATUS "dashboard: libsgc archive ${SGC_ARCHIVE}")
