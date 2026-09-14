@@ -106,6 +106,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let _ = render_tx.send(RenderCmd::Draw { resource, fd });
             }
         }
+        // The daemon pushed its resource list (a device was plugged in or
+        // removed). This client does not track devices, so there is nothing
+        // here for it to act on.
+        SgcEvent::Advertised { .. } => {}
     });
 
     let _ = render_tx.send(RenderCmd::Exit);

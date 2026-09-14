@@ -3,11 +3,11 @@
 Standalone projects for simple-graphics-controller (@sgc) — no workspace: every
 directory is its own project (own Cargo.toml, its own Meson or CMake project).
 
-Dependencies arrive as git refs, git submodules or vendored artifacts; nothing
-builds against a sibling checkout. libsgc-rs and the slint fork (branch
-`sgc-lease-1.17`) come in as Cargo git deps, cJSON and tomlc99 are git
-submodules, libsgc is a vendored archive, and lvgl comes from the fork by git
-ref. A Slint app enables only the `backend-linuxsgc` feature and never names the
+Dependencies arrive as published crates, git refs, git submodules or vendored
+artifacts; nothing builds against a sibling checkout. libsgc-rs comes from
+crates.io, the slint fork (branch `sgc-lease-1.17`) as a Cargo git dep, cJSON and
+tomlc99 are git submodules, libsgc is a vendored archive, and lvgl comes from the
+fork by git ref. A Slint app enables only the `backend-linuxsgc` feature and never names the
 backend crate or SgcClient.
 
 - sgc-drm-client — Rust: acquire a DRM card lease from @sgc, raw-ioctl modeset +

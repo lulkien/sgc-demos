@@ -12,5 +12,5 @@ description = "DRM demo client for simple-graphics-controller"
 [workspace]
 
 [dependencies]
-libsgc-rs = { git = "https://github.com/lulkien/libsgc-rs.git" }
+libsgc-rs = "0.1"
 libc = "0.2"

@@ -7,7 +7,7 @@ description = "Virtual input devices (uinput) and a resource steal probe, to ver
 publish = false
 
 # Standalone project (own Cargo.toml, no workspace), like the other demos: the
-# @sgc client comes from libsgc-rs as a git dependency.
+# @sgc client comes from libsgc-rs, published on crates.io.
 [workspace]
 
 # Two tools, one project:
@@ -18,7 +18,7 @@ publish = false
 #   sgc-steal      takes one @sgc resource for N ms and lets go — FairQueue makes
 #                  that preempt the app, so it drives the revoke/re-grant cycle.
 [dependencies]
-libsgc-rs = { git = "https://github.com/lulkien/libsgc-rs.git" }
+libsgc-rs = "0.1"
 # uinput + evdev types in one dependency (VirtualDevice::builder, AttributeSet,
 # KeyCode, InputEvent). No default features: the tokio-gated parts of the crate
 # are not used here and uinput needs no seat/udev. Needs root + /dev/uinput.
