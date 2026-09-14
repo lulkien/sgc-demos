@@ -2,10 +2,10 @@
 # End-to-end proof that INPUT keeps working across a revoke/re-grant, with no
 # human at the board.
 #
-# What it drives: a virtual keyboard created by uinput-inject BEFORE the daemon
-# starts (input has no hot-plug, and a uinput device only lives while its
-# creator does), an input-capable @sgc client on the screen, and sgc-steal
-# preempting that keyboard (FairQueue) to force the revoke/re-grant cycle.
+# What it drives: a virtual keyboard created by uinput-inject while the daemon
+# is RUNNING (the daemon adopts a device node that appears under it — no restart),
+# an input-capable @sgc client on the screen, and sgc-steal preempting that
+# keyboard (FairQueue) to force the revoke/re-grant cycle.
 #
 # The signal: the linuxsgc backend quits the event loop on Ctrl+Alt+Backspace,
 # so "the client is gone" proves the injected key REACHED it. A plain A must NOT
@@ -34,11 +34,11 @@ fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
 alive() { sshq "pgrep -f '^$APP\$' >/dev/null"; }
 
 cleanup() {
-    say "cleanup: stop the injector, restart the daemon, restore $UNIT"
+    say "cleanup: stop the injector (the daemon lets the device go), restore $UNIT"
     # Bracket patterns: a plain `pkill -f foo` also matches this script's own ssh
     # command line and kills the session.
     sshq 'pkill -f "/root/uinput-injec[t]"; pkill -f "sleep 360[0]"; true' || true
-    sshq "systemctl restart simple-graphics-controller; sleep 4; systemctl start $UNIT; true" || true
+    sshq "systemctl start $UNIT; true" || true
 }
 trap cleanup EXIT
 
@@ -49,7 +49,7 @@ if sshq 'pgrep -f "^/root/uinput-injec[t]" >/dev/null'; then
     fail "an injector is already running"
 fi
 
-say "1/6 stop $UNIT, start the virtual $DEVICE"
+say "1/7 stop $UNIT, start the virtual $DEVICE"
 sshq "systemctl stop $UNIT"
 sshq "rm -f $FIFO && mkfifo $FIFO"
 # A holder keeps the FIFO writable, so the injector never sees EOF when one ssh
@@ -60,12 +60,14 @@ sleep 2
 sshq "grep -q '^ready' $INJECT_LOG" || fail "the injector did not report ready"
 sshq "cat $INJECT_LOG"
 
-say "2/6 restart the daemon so it enumerates the virtual device (no hot-plug)"
-sshq "systemctl restart simple-graphics-controller; sleep 4"
-sshq "journalctl -u simple-graphics-controller --since '-20s' --no-pager -o cat | grep '$DEVICE'" \
-    || fail "the daemon did not open $DEVICE"
+say "2/7 the RUNNING daemon adopts the virtual device (hot-plug, no restart)"
+ADOPTED=$(sshq "sleep 5; journalctl -u simple-graphics-controller --since '-30s' --no-pager -o cat | grep '$DEVICE' | grep 'plugged in while running'" || true)
+[ -n "$ADOPTED" ] || fail "the daemon never adopted $DEVICE at runtime"
+NODE=$(printf '%s' "$ADOPTED" | sed -n 's|.*Opened \([^ ]*\) .*|\1|p')
+[ -n "$NODE" ] || fail "could not tell which node $DEVICE got: $ADOPTED"
+echo "  $DEVICE is $NODE"
 
-say "3/6 start the client and find the resource index of the virtual keyboard"
+say "3/7 start the client and find the resource index of the virtual keyboard"
 sshq "rm -f $APP_LOG; cd /root; setsid sh -c 'SLINT_DRM_MODE=3 exec $APP > $APP_LOG 2>&1' &"
 sleep 7
 LINE=$(sshq "grep 'libinput device added.*($DEVICE)' $APP_LOG | tail -1" || true)
@@ -75,11 +77,11 @@ RESOURCE="Input(Keyboard($INDEX))"
 STEAL="keyboard:$INDEX"
 echo "  $DEVICE is $RESOURCE"
 
-say "4/6 negative control: tap A — the client must survive"
+say "4/7 negative control: tap A — the client must survive"
 sshq "echo 'tap A' > $FIFO; sleep 2"
 alive || fail "the client died on an ordinary key"
 
-say "5/6 steal $RESOURCE for 2s — revoke, then re-grant"
+say "5/7 steal $RESOURCE for 2s — revoke, then re-grant"
 sshq "/root/sgc-steal $STEAL 2000 1 500; sleep 2"
 sshq "grep -F '$RESOURCE revoked' $APP_LOG | grep -F 'device removed from libinput'" \
     || fail "no revoke was logged for $RESOURCE"
@@ -88,11 +90,16 @@ sshq "grep -F 'libinput device added: $RESOURCE at' $APP_LOG | grep -F '($DEVICE
 alive || fail "the client died across the revoke/re-grant"
 echo "  revoked, re-granted, re-added — client still alive"
 
-say "6/6 inject the chord AFTER the resume — the client must exit"
+say "6/7 inject the chord AFTER the resume — the client must exit"
 sshq "echo 'key $CHORD' > $FIFO; sleep 3"
 if alive; then
     fail "the client is still alive: the chord never arrived after the resume"
 fi
 echo "  client exited: input works again after the revoke/re-grant"
+
+say "7/7 the injector dies — the daemon must let the device go"
+sshq "pkill -f '/root/uinput-injec[t]'; sleep 6"
+sshq "journalctl -u simple-graphics-controller --since '-30s' --no-pager -o cat | grep -F 'is gone; withdrawing' | grep -F '$NODE'" \
+    || fail "the daemon kept $NODE after the process holding it died"
 
 say "PASS"

@@ -8,10 +8,11 @@ Two reasons it exists:
 - **A device being back in libinput is not proof that events flow.** The client
   logs its revoke/re-grant handling, but only an injected key that the app reacts
   to shows the whole path is live again. That gap is what this closes.
-- **Input has no hot-plug** — the daemon enumerates `/dev/input` once at startup —
-  and a uinput device lives only while the process holding `/dev/uinput` is alive.
-  So the virtual device must be created BEFORE the daemon starts; after that it is
-  granted like any real device, and the test needs no hardware.
+- **The daemon adopts a device created while it runs.** It re-checks
+  `/dev/input` every couple of seconds, so the virtual device does not have to
+  exist before the daemon starts (and it disappears again when the injector
+  dies — the daemon withdraws it). The client, though, is a per-connection
+  snapshot: start it AFTER the device exists.
 
 ## Tools
 
@@ -47,26 +48,35 @@ What the driver does, in order:
 
 1. stops the dashboard unit (one DRM lease, so the test client needs the screen),
    starts the injector plus a FIFO holder that keeps it from seeing EOF;
-2. restarts the daemon so it enumerates the virtual device and prints its
-   resource (`Opened /dev/input/event6 (sgc-virtual-keyboard): Input(Keyboard(2))`);
+2. asserts the RUNNING daemon adopted the virtual device (no restart) and reads
+   its devnode path out of the log
+   (`Opened /dev/input/event6 (sgc-virtual-keyboard): Input(Keyboard(2)) (fd 14, plugged in while running)`);
 3. starts the client and reads the resource index back out of its log;
 4. **negative control**: injects a plain `A` — the client must survive, which is
    what makes the later exit mean something;
 5. steals that keyboard for 2 s and asserts the client logged the revoke AND the
    re-add of the device, and is still alive;
-6. injects Ctrl+Alt+Backspace and asserts the client is gone.
+6. injects Ctrl+Alt+Backspace and asserts the client is gone;
+7. kills the injector (which destroys the uinput device) and asserts the daemon
+   withdrew it (same devnode path).
 
-Then it cleans up: kills the injector, restarts the daemon (so it forgets the
-virtual device instead of holding a stale fd), and starts the dashboard unit.
+Then it cleans up: kills the injector (the daemon withdraws the vanished virtual
+device on its own), and starts the dashboard unit.
 
-## Observed (10.21.50.50, Pi 5, 2026-09-13)
+## Observed (10.21.50.50, Pi 5, 2026-09-14)
 
-    == 2/6 Opened /dev/input/event6 (sgc-virtual-keyboard): Input(Keyboard(2)) (fd 13)
-    == 3/6 sgc-virtual-keyboard is Input(Keyboard(2))
-    == 4/6 tap A — client survived
-    == 5/6 revoked → re-granted → re-added — client still alive
-    == 6/6 client exited: input works again after the revoke/re-grant
+    == 2/7 the RUNNING daemon adopts the virtual device (hot-plug, no restart)
+    2026-09-14T00:01:23Z  INFO ...::hotplug: Opened /dev/input/event6 (sgc-virtual-keyboard): Input(Keyboard(2)) (fd 14, plugged in while running)
+    == 3/7 sgc-virtual-keyboard is Input(Keyboard(2))
+    == 4/7 tap A — client survived
+    == 5/7 revoked → re-granted → re-added — client still alive
+    == 6/7 client exited: input works again after the revoke/re-grant
+    == 7/7 ...::hotplug: /dev/input/event6 is gone; withdrawing Input(Keyboard(2))
     == PASS
+
+The daemon was NOT restarted during the run: it adopted the device while running,
+the client (started after the device existed) found `Input(Keyboard(2))` in its
+advertise list, and the daemon withdrew the device when the injector died.
 
 ## Limits
 
@@ -76,5 +86,6 @@ virtual device instead of holding a stale fd), and starts the dashboard unit.
 - One resource at a time: the driver steals only the virtual keyboard. Stealing
   several inputs at once, or inputs while the DRM lease is revoked too, is not
   covered.
-- Needs the daemon restart in step 2 (see "no hot-plug" above) — that is a
-  property of the daemon today, not of the harness.
+- Step 2 needs no daemon restart: the daemon adopts the virtual device within a
+  couple of seconds of it appearing, and the test asserts that adoption (and, at
+  the end, that the device is withdrawn once the injector dies).
