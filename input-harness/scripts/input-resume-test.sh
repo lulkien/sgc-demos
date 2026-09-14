@@ -107,6 +107,8 @@ sshq "/root/sgc-steal $STEAL 1000 1 500 2>&1 | tail -1" \
     || fail "an input-only probe was NOT denied $RESOURCE (the app's seat holds it)"
 alive || fail "the client died on a denied probe"
 echo "  denied — input follows the seat"
+APP_PID=$(sshq "pgrep -f '^$APP\$'" | head -1)
+ADDS_BEFORE=$(sshq "grep -cF 'libinput device added: $RESOURCE at' $APP_LOG || true")
 
 say "6/10 the seat changes hands: the app's devices go with the display, and it gets it back"
 sshq "/root/sgc-steal drm:1 2000 1 500 > /tmp/seat-steal.log 2>&1; sleep 3"
@@ -119,18 +121,20 @@ sshq "grep -F 'Drm { card: 1 } re-granted' $APP_LOG" \
 alive || fail "the client died across the seat handover"
 echo "  seat taken and given back; the app's devices went with it"
 
-say "7/10 restart the client — it holds the display but no devices (re-acquire is client-side work)"
-# The engine does not re-grant input with the seat, and the linuxsgc backend does
-# not re-ask for its devices on a display re-grant yet. Restarting it is what
-# makes the rest of the run meaningful; closing that gap is the next change.
-sshq "pkill -f '^$APP\$'; sleep 2; rm -f $APP_LOG"
-sshq "cd /root; setsid sh -c 'SLINT_DRM_MODE=3 exec $APP > $APP_LOG 2>&1' & sleep 7"
-LINE=$(sshq "grep 'libinput device added.*($DEVICE)' $APP_LOG | tail -1" || true)
-INDEX=$(printf '%s' "$LINE" | sed -n 's/.*Input(Keyboard(\([0-9]*\))).*/\1/p')
-[ -n "$INDEX" ] || fail "the restarted client never registered $DEVICE (log: $LINE)"
-RESOURCE="Input(Keyboard($INDEX))"
-STEAL="keyboard:$INDEX"
-echo "  client restarted; $DEVICE is $RESOURCE again"
+say "7/10 the client re-acquires its devices by itself when the display comes back"
+# The seat handover took the app's devices with the display; the engine hands the
+# DISPLAY back but never the devices, so the client has to ask again — and it is
+# the same process that must do it, with no restart.
+sleep 4
+sshq "grep -F 'acquiring $RESOURCE from @sgc (the display is back)' $APP_LOG" \
+    || fail "the client did not re-acquire $RESOURCE after the display came back"
+ADDS_AFTER=$(sshq "grep -cF 'libinput device added: $RESOURCE at' $APP_LOG || true")
+[ "$ADDS_AFTER" -gt "$ADDS_BEFORE" ] \
+    || fail "$RESOURCE was not handed back to libinput ($ADDS_BEFORE -> $ADDS_AFTER adds)"
+[ "$(sshq "pgrep -f '^$APP\$'" | head -1)" = "$APP_PID" ] \
+    || fail "the client was restarted: the re-acquire has to happen in the same process"
+alive || fail "the client died across the seat handover"
+echo "  same process, devices re-acquired and re-added to libinput"
 
 say "8/10 a device plugged in NOW must reach the running client"
 # A second uinput device created after the client connected: the daemon adopts it
@@ -148,14 +152,17 @@ sshq "grep -E 'libinput device added: Input\\(Mouse\\([0-9]+\\)\\) at .*($LATE)'
 echo "  $LATE was adopted, acquired and registered while the app ran"
 
 say "9/10 the injector dies — the daemon must SUSPEND the device, not revoke it"
+# Counted, not grepped: the seat handover of step 6 legitimately revoked this
+# resource, and that line is still in the log.
+REVOKES_BEFORE=$(sshq "grep -cF '$RESOURCE revoked' $APP_LOG || true")
 sshq "pkill -f '/root/uinput-injec[t]'; sleep 6"
 sshq "journalctl -u simple-graphics-controller --since '-30s' --no-pager -o cat | grep -F 'Suspended $RESOURCE'" \
     || fail "the daemon did not suspend $RESOURCE when its device went away"
 # The holder keeps the resource: no Revoke reaches it, and its own fd dying is
 # all it sees (libinput reports the removal).
-if sshq "grep -F '$RESOURCE revoked' $APP_LOG >/dev/null"; then
-    fail "$RESOURCE was revoked: a device that goes away must not cost its holder the resource"
-fi
+REVOKES_AFTER=$(sshq "grep -cF '$RESOURCE revoked' $APP_LOG || true")
+[ "$REVOKES_AFTER" = "$REVOKES_BEFORE" ] \
+    || fail "$RESOURCE was revoked when its device went away ($REVOKES_BEFORE -> $REVOKES_AFTER): a suspended device must cost its holder nothing"
 sshq "grep -F '$RESOURCE' $APP_LOG | grep -F 'the grant is kept'" \
     || fail "the client did not report keeping the grant of $RESOURCE"
 alive || fail "the client died when its device went away"

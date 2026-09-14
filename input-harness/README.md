@@ -68,8 +68,11 @@ What the driver does, in order:
 6. takes the DISPLAY with `sgc-steal drm:1`, which preempts the app: its lease and
    its devices are revoked with its seat, and the display is handed back when the
    probe exits (`re-granted (fd 6) — rebuilding display stack`);
-7. restarts the client — it holds the display but no devices, because re-acquiring
-   them on a display re-grant is client-side work the backend does not do yet;
+7. asserts the client re-acquired its devices BY ITSELF when the display came back
+   (`acquiring Input(Keyboard(2)) from @sgc (the display is back)`, then the device
+   back in libinput) — in the same process, which is what the pid comparison is
+   for: the engine hands the display back but never the devices, so re-asking is
+   the client's half of the handover;
 8. creates a SECOND virtual device (a mouse) while the client is up and asserts the
    client asked for it, was granted it and handed it to libinput — the daemon
    pushes its list whenever a device appears, which is how an app that is already
@@ -96,6 +99,8 @@ device on its own), and starts the dashboard unit.
     == 6/10 linuxsgc: lease Drm { card: 1 } revoked — suspending until re-granted
            linuxsgc: input: Input(Keyboard(2)) revoked — device removed from libinput
            linuxsgc: lease Drm { card: 1 } re-granted (fd 6) — rebuilding display stack
+    == 7/10 linuxsgc: acquiring Input(Keyboard(2)) from @sgc (the display is back)...
+           same process, devices re-acquired and re-added to libinput
     == 8/10 2026-09-14T05:21:15Z  INFO ...::hotplug: Opened /dev/input/event7 (sgc-late-mouse): Input(Mouse(1)) (fd 19, plugged in while running)
            linuxsgc: acquiring Input(Mouse(1)) from @sgc (appeared while running)...
            linuxsgc: input: libinput device added: Input(Mouse(1)) at /dev/input/event7 (sgc-late-mouse)
@@ -109,9 +114,10 @@ device on its own), and starts the dashboard unit.
 
 The daemon was NOT restarted during the run, and step 8's device did not exist
 when the client connected: the daemon adopted it, pushed the new list, and the
-client — already running — acquired it and handed it to libinput. Step 10 shows
-the same client holding `Input(Keyboard(2))` across the device's absence, with no
-`acquiring` line anywhere in it.
+client — already running — acquired it and handed it to libinput. The whole run is
+ONE client process: it re-acquires its devices when the display comes back (step
+7), and holds `Input(Keyboard(2))` across that device's absence and return (steps
+9 and 10) with no `acquiring` line for it.
 
 ## Limits
 
@@ -122,7 +128,8 @@ the same client holding `Input(Keyboard(2))` across the device's absence, with n
   the display to exercise the seat rule. Several inputs at once, or a device
   re-enumerated to a DIFFERENT device name (a "different device on the same node"
   replacement), is not covered.
-- Step 7 exists because the client does not re-acquire its devices after a display
-  re-grant yet; when it does, that step becomes an assertion instead of a restart.
+- A seat handover is covered only for the devices the app already held: a device
+  that is REFUSED before the handover is re-asked on the next one, but the driver
+  does not assert that path.
 - A device name left suspended by an aborted run stays reserved for the daemon's
   lifetime, which is why the driver restarts the daemon in its preflight.
