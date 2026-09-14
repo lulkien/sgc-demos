@@ -5,9 +5,14 @@
     REF                                 the libsgc-c commit this was built from
 
 The default build links these, so building the dashboard needs neither cargo nor
-the network. Linking one fixed archive also pins `libsgc-rs` - `libsgc-c` does
-not track its `Cargo.lock`, so a from-source build resolves that dependency at
-whatever its repository's current HEAD is.
+the network. `libsgc-c` declares its dependencies by version (`libsgc-rs = "0.2"`
+from crates.io), so a from-source build is reproducible as well: the archive is
+about not needing cargo or the network, not about pinning.
+
+This artifact is BEHIND what the source builds: `REF` predates
+`SGC_EVENT_ADVERTISED`, the C ABI's event for a changed resource list. Re-vendor
+(`scripts/vendor-libsgc.sh` after bumping `SGC_REF`) before relying on the event
+or on the library matching a source build.
 
 Provenance: built from `https://github.com/lulkien/libsgc-c.git` at the commit in
 `REF`, for `aarch64-unknown-linux-gnu`, `cargo build --release`, then

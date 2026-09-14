@@ -53,7 +53,9 @@ Ctrl+Alt+Backspace quit: **the app disappearing proves the key arrived.**
 What the driver does, in order:
 
 1. restarts the daemon for a clean device table (suspension is in-memory state, so
-   repeated runs would otherwise resume a name left over from the last one — the
+   repeated runs would otherwise resume the suspended entry — and that resume
+   matches the devnode PATH, not the device name, so an injected device of another
+   class landing on the same `eventN` inherits the old resource — the
    run itself still needs no restart, which is what step 2 asserts), stops the
    dashboard unit (one DRM lease, so the test client needs the screen), and starts
    the injector plus a FIFO holder that keeps it from seeing EOF;

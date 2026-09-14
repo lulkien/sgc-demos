@@ -69,13 +69,16 @@ Watch it: `ssh root@10.21.50.53 'tail -f /tmp/agh-slint.log'`.
    Both times the next client failed with "connection refused". Worth a look in
    the daemon repo — `sgc` clients are sgc-or-die, so a silent daemon exit takes
    the screen down.
-3. **Restart-on-death for the dashboard**: if the GL flavor does turn out to die
-   on a steal, a `Restart=always` unit is the one-line fix. Not written yet.
+3. **Restart-on-death for the dashboard**: done. The app ships as a
+   `Restart=always` unit, which is what carries the GL flavor through a steal —
+   it cannot rebuild its renderer in-process, while the CPU flavor re-acquires in
+   place.
 4. **GPU + preemption survival in the fork** (optional, the real fix if wanted):
    teach `i-slint-backend-linuxsgc` to tear down and rebuild the renderer on
    re-grant, after which the GPU flavor would survive a steal too. Contained to
    the backend.
-5. **Commit** — nothing is committed (see below).
+5. **Commit** — done and published: the library and ABI work is on crates.io
+   (`libsgc-rs 0.2.0`, `libsgc-c 0.1.1`) and every repo is pushed, tags included.
 6. The board reboots on its own (power/network); every reboot costs a daemon
    restart. `start-sgc.sh` now handles that in one command.
 
