@@ -7,6 +7,10 @@ import { BarChart } from "bar-chart.slint";
 // One chart in the top row: title, running total, then the bars filling the
 // rest. A series with no activity draws no bars at all, which looks broken on
 // its own, so it gets a hint instead.
+//
+// The chart row is the flexible one: its card is a share of whatever the panel
+// left over (main.slint), and the bar area takes what the title and the total do
+// not.
 export component ChartCard inherits Card {
     in property <ChartData> data;
 
@@ -19,7 +23,8 @@ export component ChartCard inherits Card {
         Text {
             text: data.total;
             color: Theme.text;
-            font-size: 28px;
+            font-size: Theme.total-size;
+            wrap: no-wrap;
         }
 
         Rectangle {
@@ -36,7 +41,8 @@ export component ChartCard inherits Card {
                 height: 100%;
                 text: "no activity in this interval";
                 color: Theme.muted;
-                font-size: 14px;
+                font-size: Theme.footer-size;
+                wrap: no-wrap;
                 horizontal-alignment: center;
                 vertical-alignment: center;
             }

@@ -9,18 +9,20 @@ import { SectionTitle } from "section-title.slint";
 //
 // The height is explicit on purpose: a layout child would otherwise stretch to
 // fill the card, which makes every row 52px tall with the text pinned to the top
-// and a dead gap under it. `alignment: center` puts the text in the middle of
-// its own row, and the height is content-sized for a 16px line plus padding.
+// and a dead gap under it. `vertical-alignment: center` puts the text in the
+// middle of its own row. TableCard overrides the height with the one it computed
+// from the card height; Theme.row-min is what a row looks like on its own.
 component TableRow inherits HorizontalLayout {
     in property <RowData> entry;
 
-    height: 34px;
-    spacing: 8px;
+    height: Theme.row-min;
+    spacing: 8px * Theme.scale;
 
     Text {
         text: entry.label;
         color: Theme.text;
         font-size: Theme.cell-size;
+        wrap: no-wrap;
         vertical-alignment: center;
         horizontal-stretch: 3;
         overflow: elide;
@@ -29,6 +31,7 @@ component TableRow inherits HorizontalLayout {
         text: entry.value;
         color: Theme.text;
         font-size: Theme.cell-size;
+        wrap: no-wrap;
         vertical-alignment: center;
         horizontal-stretch: 1;
         horizontal-alignment: right;
@@ -39,13 +42,14 @@ component TableHead inherits HorizontalLayout {
     in property <string> col0: "";
     in property <string> col1: "";
 
-    height: 30px;
-    spacing: 8px;
+    height: Theme.head-h;
+    spacing: 8px * Theme.scale;
 
     Text {
         text: col0;
         color: Theme.muted;
         font-size: Theme.cell-size;
+        wrap: no-wrap;
         vertical-alignment: center;
         horizontal-stretch: 3;
         overflow: elide;
@@ -54,6 +58,7 @@ component TableHead inherits HorizontalLayout {
         text: col1;
         color: Theme.muted;
         font-size: Theme.cell-size;
+        wrap: no-wrap;
         vertical-alignment: center;
         horizontal-stretch: 1;
         horizontal-alignment: right;
@@ -63,8 +68,26 @@ component TableHead inherits HorizontalLayout {
 // A titled table with a hairline under every row. Rows come from the model: an
 // empty list simply leaves the card blank, which is the intended look when the
 // server has nothing to report yet.
+//
+// HOW MANY ROWS SHOW is decided here, from the height the page handed this card:
+// a table on a short panel shows the rows that fit at Theme.row-min instead of
+// overflowing the card and painting over the footer. The card's height is an
+// input (main.slint computes it from the panel), which is what keeps this
+// arithmetic acyclic - a height that came from the layout would depend on the
+// rows, which depend on the height.
 export component TableCard inherits Card {
     in property <TableData> data;
+
+    // Everything in the card that is not a row: padding, title, the gap under
+    // it, the column header, and one hairline per row.
+    out property <length> row-area: (self.height - Theme.card-padding * 2
+        - Theme.title-line - Theme.card-gap - Theme.head-h);
+
+    // Rows at their minimum height; the last one gets the remainder of the card.
+    out property <int> visible-rows: min(self.data.rows.length,
+        max(1, floor(self.row-area / Theme.row-span)));
+    out property <length> row-h: max(Theme.row-min,
+        self.row-area / max(1, self.visible-rows) - 1px);
 
     VerticalLayout {
         padding: Theme.card-padding;
@@ -75,10 +98,10 @@ export component TableCard inherits Card {
         VerticalLayout {
             spacing: 0px;
             TableHead { col0: data.col0; col1: data.col1; }
-            for row in data.rows: VerticalLayout {
+            for row[i] in data.rows: VerticalLayout {
                 spacing: 0px;
-                TableRow { entry: row; }
-                Rectangle {
+                if i < root.visible-rows: TableRow { entry: row; height: root.row-h; }
+                if i < root.visible-rows: Rectangle {
                     height: 1px;
                     background: Theme.grid;
                 }

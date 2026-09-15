@@ -2,6 +2,12 @@
 // a footer. It only arranges components that live in their own files
 // (theme.slint, types.slint, *-card.slint), so this file stays a layout.
 //
+// The page is laid out from the panel and never from a canvas of its own:
+// header, badge and footer take fixed line boxes, the three card rows split the
+// rest, and each table card shows the rows that fit the height it was given
+// (table-card.slint). That is what makes the same markup fill a 1366x768 panel
+// and a 1920x1080 one.
+//
 // Compiled to Rust by build.rs; slint-build follows the imports, so the types in
 // types.slint become Rust structs (see ../src/view.rs).
 
@@ -12,10 +18,16 @@ import { TableCard } from "table-card.slint";
 import { ProtectionBadge } from "protection-badge.slint";
 
 export component MainWindow inherits Window {
-    // The board's panel. The linuxsgc backend overrides this with the lease's
-    // mode; the offscreen --self-check renders at exactly this size.
-    width: 1720px;
-    height: 1440px;
+    // No width/height here on purpose: the linuxsgc backend sizes this window
+    // from the DRM lease's mode, and Slint lays the page out at the size the
+    // window ends up with. The offscreen --self-check sets the size it renders
+    // at instead (src/selfcheck.rs), so it measures the panels it is given.
+
+    // Publish the panel to the theme, which every length is derived from.
+    init => { Theme.panel-w = self.width; Theme.panel-h = self.height; }
+    changed width => { Theme.panel-w = self.width; }
+    changed height => { Theme.panel-h = self.height; }
+
     background: Theme.page;
 
     in property <string> status-text: "starting";
@@ -41,17 +53,22 @@ export component MainWindow inherits Window {
 
             // header: title on the left, refresh status on the right
             HorizontalLayout {
-                spacing: 14px;
+                height: Theme.heading-line;
+                spacing: 14px * Theme.scale;
                 Text {
                     text: "AdGuard Home statistics";
                     color: Theme.text;
-                    font-size: 24px;
+                    font-size: Theme.heading-size;
+                    wrap: no-wrap;
+                    vertical-alignment: center;
                     horizontal-stretch: 1;
                 }
                 Text {
                     text: root.status-text;
                     color: root.status-color;
                     font-size: Theme.cell-size;
+                    wrap: no-wrap;
+                    vertical-alignment: center;
                     horizontal-alignment: right;
                     horizontal-stretch: 1;
                 }
@@ -59,6 +76,7 @@ export component MainWindow inherits Window {
 
             // the badge sits on its own line, left-aligned
             HorizontalLayout {
+                height: Theme.badge-h;
                 spacing: 0px;
                 ProtectionBadge {
                     known: root.protection-known;
@@ -74,45 +92,52 @@ export component MainWindow inherits Window {
             // content's preferred width and horizontal-stretch only splits what
             // is left, so the card with the longest title used to come out
             // wider (378 / 379 / 470 / 425 px). min-width: 0px does not override
-            // that in Slint; an explicit share of the row does.
+            // that in Slint; an explicit share of the row does, and it comes from
+            // the theme (Theme.content-w) rather than from `parent.width` - see
+            // the comment on content-w for the binding loop that avoids.
             HorizontalLayout {
+                height: Theme.charts-h;
                 spacing: Theme.page-gap;
-                vertical-stretch: 32;
                 for chart in root.charts: ChartCard {
                     data: chart;
-                    width: (parent.width - (root.charts.length - 1) * Theme.page-gap) / root.charts.length;
+                    width: (Theme.content-w - (root.charts.length - 1) * Theme.page-gap) / root.charts.length;
                 }
             }
 
             // row 2: general statistics | top clients
             HorizontalLayout {
+                height: Theme.table-row-h;
                 spacing: Theme.page-gap;
-                vertical-stretch: 30;
-                TableCard { data: root.general; width: (parent.width - Theme.page-gap) / 2; }
-                TableCard { data: root.top-clients; width: (parent.width - Theme.page-gap) / 2; }
+                TableCard { data: root.general; width: (Theme.content-w - Theme.page-gap) / 2; }
+                TableCard { data: root.top-clients; width: (Theme.content-w - Theme.page-gap) / 2; }
             }
 
             // row 3: top queried domains | top blocked domains
             HorizontalLayout {
+                height: Theme.table-row-h;
                 spacing: Theme.page-gap;
-                vertical-stretch: 38;
-                TableCard { data: root.top-queried; width: (parent.width - Theme.page-gap) / 2; }
-                TableCard { data: root.top-blocked; width: (parent.width - Theme.page-gap) / 2; }
+                TableCard { data: root.top-queried; width: (Theme.content-w - Theme.page-gap) / 2; }
+                TableCard { data: root.top-blocked; width: (Theme.content-w - Theme.page-gap) / 2; }
             }
 
             // footer: version | endpoint
             HorizontalLayout {
-                spacing: 14px;
+                height: Theme.footer-line;
+                spacing: 14px * Theme.scale;
                 Text {
                     text: root.footer-version;
                     color: Theme.muted;
-                    font-size: 14px;
+                    font-size: Theme.footer-size;
+                    wrap: no-wrap;
+                    vertical-alignment: center;
                     horizontal-stretch: 1;
                 }
                 Text {
                     text: root.footer-source;
                     color: Theme.muted;
-                    font-size: 14px;
+                    font-size: Theme.footer-size;
+                    wrap: no-wrap;
+                    vertical-alignment: center;
                     horizontal-alignment: right;
                     horizontal-stretch: 1;
                 }

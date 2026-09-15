@@ -8,9 +8,9 @@ export component ProtectionBadge inherits Rectangle {
     in property <bool> on: false;
     in property <string> label: "Protection: unknown";
 
-    width: 190px;
-    height: 32px;
-    border-radius: 8px;
+    width: Theme.badge-w;
+    height: Theme.badge-h;
+    border-radius: Theme.badge-radius;
     background: !known ? Theme.muted : (on ? Theme.protection-on : Theme.protection-off);
 
     Text {
@@ -19,6 +19,7 @@ export component ProtectionBadge inherits Rectangle {
         text: root.label;
         color: Theme.on-badge;
         font-size: Theme.cell-size;
+        wrap: no-wrap;
         horizontal-alignment: center;
         vertical-alignment: center;
     }
