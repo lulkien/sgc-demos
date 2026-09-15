@@ -4,6 +4,6 @@ import { Theme } from "theme.slint";
 // inside the using component, because Slint only honours padding on layouts.
 export component Card inherits Rectangle {
     background: Theme.card;
-    border-radius: 10px;
+    border-radius: Theme.card-radius;
     @children
 }

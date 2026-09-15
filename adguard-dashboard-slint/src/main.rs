@@ -43,8 +43,10 @@ fn main() -> Result<()> {
     let cfg = Config::load(&config::path_from_args(&args))?;
 
     // The self-check renders offscreen: no window, no lease, no daemon needed.
+    // It takes the panel sizes to check (`--size WxH,...`) so it can be run
+    // against the panel this board actually has.
     if args.iter().any(|arg| arg == "--self-check") {
-        return selfcheck::run(&cfg);
+        return selfcheck::run(&cfg, &selfcheck::sizes_from_args(&args)?);
     }
 
     // Window creation first: it installs the linuxsgc backend (which connects to

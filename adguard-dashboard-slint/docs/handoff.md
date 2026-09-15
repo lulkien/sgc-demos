@@ -100,9 +100,12 @@ Watch it: `ssh root@10.21.50.53 'tail -f /tmp/agh-slint.log'`.
 * Table rows: a layout child **stretches to fill its parent** by default, which
   made every row 52px with the text pinned at the top; and a layout's
   `alignment` does **not** move text vertically - the Text's own
-  `vertical-alignment` does, and it defaults to top. Fix: explicit row height
-  (34px), cells with `vertical-alignment: center`. Measured with the self-check's
-  `column ... text bands` / `separators` probe (row band 594-629, ink 605-617).
+  `vertical-alignment` does, and it defaults to top. Fix: an explicit row height
+  plus `vertical-alignment: center` cells. The height is now computed by the card
+  (`(card - padding - title - head) / rows`, floored at `Theme.row-min`) and the
+  row count is capped to what fits, so the table fills the card it was given
+  instead of overflowing a short panel. Measured with the self-check's
+  `column ... text bands` / `separators` probe.
 * Slint resolves `self` to the *current element*: an enclosing component's
   property is referenced by its bare name; `padding` only applies to layouts.
 * The three top lists arrive as **single-key objects** (`{"10.21.50.1": 758}`),

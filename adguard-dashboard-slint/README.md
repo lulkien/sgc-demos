@@ -33,6 +33,27 @@ lease.
     scripts/start-dashboard-slint.sh   board launcher
     Justfile            host build; board builds (GPU / CPU flavors)
 
+## Fitting the panel
+
+The page is laid out from the panel, not from a canvas of its own. There is no
+`width`/`height` on the Window: the linuxsgc backend sizes it from the DRM
+lease's mode, the window publishes that size into `Theme.panel-w`/`panel-h`, and
+every length follows from it. Header, badge and footer take fixed line boxes, the
+three card rows split the rest (charts 30%, one table row 35% each), and each
+table card shows the rows that fit its height at `Theme.row-min` — a 1366x768
+panel shows seven of the nine top-list rows, a 1440-tall panel shows all nine.
+Type and spacing scale with `Theme.scale`: 1.0 down to a 1000px-tall panel, then
+tapering to a floor of 0.8.
+
+A **declared** Window size does not do any of that, it pins the layout. Measured
+with 1720x1440 declared on a 1366x768 panel, the page was laid out at 1720x1440
+and the panel showed its top-left corner alone: the fourth chart card cut in
+half, the second table row and the footer off screen entirely. The card widths
+come from `Theme.content-w` rather than from `parent.width` for the same reason
+in reverse: reading a row's own layout info from inside one of its children
+closes a Slint binding loop
+(`root.layoutinfo-h -> width -> layoutinfo-h -> root.layoutinfo-h`).
+
 ## What the framework owns
 
 Nothing in `src/main.rs` mentions the backend or `SgcClient`: the crate enables
@@ -127,16 +148,33 @@ drop-in — brings one line per refresh back.
 
 ## Self-check (verify by reading pixels, not by looking)
 
-    adguard-dashboard-slint --self-check [--config <path>]
+    adguard-dashboard-slint --self-check [--config <path>] [--size WxH,WxH...]
 
 Renders the dashboard with the software renderer into a plain buffer — no
-window, no lease, no daemon — and prints what it painted, per colour:
+window, no lease, no daemon — once per panel size (default
+`1366x768,1720x1440,1920x1080`, or `SLINT_SELFCHECK_SIZE`), and prints what it
+painted, per colour:
 
-    [selfcheck] data: 760 queries, 94 blocked, 24 buckets/series, version v0.107.79
-    [selfcheck] rendered 1720x1440 in 87 ms
-    [selfcheck] of 2476800 pixels: page=... card=... grid=... badge=...
-    [selfcheck] chart 0 bars px=...
+    [selfcheck] data: 21515 queries, 3436 blocked, 24 buckets/series, version v0.107.79
+    [selfcheck] 1366x768: rendered in 9 ms
+    [selfcheck] 1366x768: of 1049088 pixels: page=... card=... grid=... badge=...
+    [selfcheck] 1366x768: chart 0 bars px=3715
+    [selfcheck] 1366x768: card row 0: 328x189 at (13,82) | 328x189 at (350,82) | ...
+    [selfcheck] 1366x768: content x=13..1352 y=16..754 of 1366x768
+    [selfcheck] 3 panel size(s) ok
 
-It fails loudly when no card background was painted at all. That is the Slint
-counterpart of the LVGL app's `--self-check`, and it is how the layout and the
-data path get checked without a screen.
+Every size must pass, and a failure names the panel:
+
+* the card grid is four charts then two rows of two tables — a missing row or a
+  row with the wrong number of cards fails;
+* the cards of one row have to come out equal (they get explicit weights; an
+  odd remainder may differ by a pixel);
+* the page has to stay inside the buffer (`content ... of WxH`) — this is the
+  check that fails first when a fixed size or a row that is too tall creeps back
+  in, and it is why the sizes are a parameter instead of a constant: a check
+  that only ever renders the canvas the markup was designed on cannot see a
+  panel smaller than that canvas;
+* with data present, at least one bar pixel on the charts.
+
+That is the Slint counterpart of the LVGL app's `--self-check`, and it is how the
+layout and the data path get checked without a screen.

@@ -1,8 +1,12 @@
 import { Theme } from "theme.slint";
 
 // Section heading: a step larger than the content it heads, so a card reads as
-// title + body rather than one block of text.
+// title + body rather than one block of text. Elides rather than wraps: a title
+// that took a second line would eat the card's row budget, and the card already
+// knows the width it has (the page gives every card an explicit share).
 export component SectionTitle inherits Text {
     color: Theme.muted;
     font-size: Theme.title-size;
+    wrap: no-wrap;
+    overflow: elide;
 }

@@ -9,7 +9,8 @@ import { Theme } from "theme.slint";
 // that block, with pad_column taken from the default theme's chart style:
 // LV_DPX(10) at the fork's default 130 dpi is (130 * 10 + 80) / 160 = 8 px.
 // A column layout with 8 px spacing works out to the same bar width and the same
-// gaps, and the bar radius is LV_DPX(3) = 2 px.
+// gaps, and the bar radius is LV_DPX(3) = 2 px. Both follow the theme's scale, so
+// they shrink with the panel the way the type does.
 export component BarChart inherits Rectangle {
     in property <[float]> values: [];       // normalised 0..1
     in property <color> bar-color: Theme.series-queries;
@@ -17,7 +18,7 @@ export component BarChart inherits Rectangle {
     background: transparent;
 
     HorizontalLayout {
-        spacing: 8px;
+        spacing: 8px * Theme.scale;
         for value in values: VerticalLayout {
             spacing: 0px;
             Rectangle {
@@ -27,7 +28,7 @@ export component BarChart inherits Rectangle {
             Rectangle {
                 vertical-stretch: max(0.02, value);
                 background: bar-color;
-                border-radius: 2px;
+                border-radius: 2px * Theme.scale;
             }
         }
     }

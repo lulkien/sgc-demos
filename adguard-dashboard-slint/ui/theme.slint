@@ -2,8 +2,78 @@
 // ../adguard-dashboard/src/ui.c) so both screens look the same, and the values
 // are repeated as (r, g, b) triples in ../src/view.rs for the offscreen
 // self-check, which counts pixels per colour.
+//
+// Every size is derived from the PANEL, not from a canvas of its own: the root
+// window publishes its size into panel-w/panel-h (see main.slint), `scale`
+// measures that against the canvas these numbers were tuned on, and the lengths
+// below follow it. There is deliberately no declared window size anywhere - a
+// declared one PINS the layout to it (measured: 1720x1440 declared with a
+// 1366x768 panel gave a page laid out at 1720x1440, of which the panel showed
+// its top-left corner alone: the fourth chart card cut in half, the second table
+// row and the footer off screen entirely).
 
 export global Theme {
+    // The panel the page is actually drawn on; the root window sets these.
+    in-out property <length> panel-w: 1366px;
+    in-out property <length> panel-h: 768px;
+
+    // 1.0 for any panel at least 1000px tall, which is where this layout still
+    // shows every table row at full type size; shorter panels taper, floored at
+    // 0.8, because there the type stops being readable and a table showing the
+    // rows that fit is better than text that keeps shrinking.
+    out property <float> scale: max(0.8, min(1.0, self.panel-h / 1000px));
+
+    // Type scale, each step larger than the content it heads.
+    out property <length> heading-size: 24px * self.scale;
+    out property <length> total-size: 28px * self.scale;
+    out property <length> title-size: 20px * self.scale;
+    out property <length> cell-size: 16px * self.scale;
+    out property <length> footer-size: 14px * self.scale;
+
+    // One line box per text size. DejaVu Sans wants about 1.17em for ascent +
+    // descent + line gap; 1.25em leaves a descender room to spare, and the
+    // explicit heights in main.slint use these so the page budget adds up
+    // exactly instead of depending on font metrics.
+    out property <length> title-line: self.title-size * 1.25;
+    out property <length> cell-line: self.cell-size * 1.25;
+    out property <length> heading-line: self.heading-size * 1.25;
+    out property <length> footer-line: self.footer-size * 1.25;
+
+    out property <length> page-padding: 16px * self.scale;
+    out property <length> page-gap: 12px * self.scale;
+    out property <length> card-padding: 12px * self.scale;
+    out property <length> card-gap: 14px * self.scale;
+    out property <length> card-radius: 10px * self.scale;
+    out property <length> badge-radius: 8px * self.scale;
+    out property <length> badge-w: 190px * self.scale;
+    out property <length> badge-h: 32px * self.scale;
+
+    // The width every card row lays out in: the panel minus the page padding.
+    // The rows take their card widths from here rather than from `parent.width`
+    // in the markup, because reading a row's own layout info from inside a child
+    // of that row closes a binding loop in Slint
+    // (root.layoutinfo-h -> width -> layoutinfo-h -> root.layoutinfo-h), and the
+    // page's content width is something the theme owns anyway.
+    out property <length> content-w: self.panel-w - self.page-padding * 2;
+
+    // The three card rows' share of the panel, once the header, the badge, the
+    // footer, the padding and the five gaps have taken theirs: the charts get
+    // 30%, each table row 35%. Explicit heights rather than vertical-stretch,
+    // because a card has to know its own height to decide how many table rows it
+    // can show, and a stretched child only learns its height after its content
+    // was laid out.
+    out property <length> rows-h: max(0px, self.panel-h - self.page-padding * 2
+        - self.page-gap * 5 - self.heading-line - self.badge-h - self.footer-line);
+    out property <length> charts-h: self.rows-h * 0.30;
+    out property <length> table-row-h: self.rows-h * 0.35;
+
+    // Table furniture: a row is one cell line plus a little air, and never
+    // shorter than that, so the type in it always fits. `row-span` is that row
+    // plus the hairline under it, which is the budget table-card.slint divides.
+    out property <length> head-h: self.cell-line + 4px * self.scale;
+    out property <length> row-min: self.cell-line + 4px * self.scale;
+    out property <length> row-span: self.row-min + 1px;
+
     out property <color> page: #0F1419;
     out property <color> card: #19212A;
     out property <color> grid: #2B3644;
@@ -19,13 +89,4 @@ export global Theme {
     out property <color> series-filtered: #E8843C;
     out property <color> series-malware: #A86FE0;
     out property <color> series-adult: #4FD1A5;
-
-    // one step larger than the content a section heads
-    out property <length> title-size: 20px;
-    out property <length> cell-size: 16px;
-
-    out property <length> page-padding: 16px;
-    out property <length> page-gap: 12px;
-    out property <length> card-padding: 12px;
-    out property <length> card-gap: 14px;
 }
