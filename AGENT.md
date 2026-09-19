@@ -8,8 +8,6 @@ Nothing here builds against a sibling checkout: dependencies arrive as git refs,
 ## Demo Portfolio
 | Demo | Backend | Features | Purpose |
 |---|---|---|---|
-| `sgc-drm-client` | DRM | `--features drm` (default) | Acquires first advertised DRM card lease; runs KMS modeset + paint loop via raw ioctls; demonstrates resource revoke/re-grant lifecycle |
-| `sgc-fbdev-client` | Fbdev | `--features fbdev` (opt-in) | Acquires `/dev/fb0`; draws via linfb; demonstrates dup fd borrowing and input preemption |
 | `slint-lease-client` | DRM + slint UI | default: `software`; optional: `femtovg`, `input` | Runs a Slint UI on a DRM lease granted by the daemon; demonstrates full app integration with revoke/suspend/resume; UI marker moves to ui/main.slint |
 | `c-samples` | DRM (Meson) | `sgc-drm-c`, `sgc-drm-cpp` | C and C++ clients against the libsgc C ABI; takes the archive and headers through `-Dsgc_dir=` (predates the vendoring rule below) |
 | `adguard-dashboard` | DRM + LVGL (CMake) | `LV_USE_SGC`, no input | A real application: AdGuard Home's statistics page in LVGL, rendered through the daemon via the lvgl fork. Vendored libsgc, submoduled cJSON/tomlc99, committed lv_conf.h, `--self-check` pixel read-back |
@@ -98,8 +96,6 @@ client.acquire(Resource::Input(InputResource::Mouse(0)))?;
 
 ## Build & Run Conventions
 - Each demo is its own Cargo project; build with `cargo build --release` from its directory
-- `sgc-drm-client`: `cargo build --release --features drm` (default; drm is default feature)
-- `sgc-fbdev-client`: `cargo build --release --features fbdev` (opt-in backend)
 - `slint-lease-client`: default features = `["software"]`; add `--features femtovg` for GPU; `--features input` for keyboard/mouse/touch (gnu only, not musl)
 - Run as **root** (opens `/dev/dri` + `/dev/input`): `RUST_LOG=info ./target/release/<demo>`
 - `slint-lease-client` env vars: `SLINT_BACKEND=linuxsgc` (or leave empty; it's the only backend enabled)

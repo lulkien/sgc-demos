@@ -10,10 +10,6 @@ tomlc99 are git submodules, libsgc is a vendored archive, and lvgl comes from th
 fork by git ref. A Slint app enables only the `backend-linuxsgc` feature and never names the
 backend crate or SgcClient.
 
-- sgc-drm-client — Rust: acquire a DRM card lease from @sgc, raw-ioctl modeset +
-  paint loop on the granted fd
-- sgc-fbdev-client — Rust: acquire the fbdev resource from @sgc, draw via linfb
-  (input + animation)
 - slint-lease-client — Rust: a Slint UI on a DRM lease via the linuxsgc backend
   (slint fork git dep, feature backend-linuxsgc; add --features input for
   keyboard/mouse/touch from the granted devices — gnu builds only, board needs
