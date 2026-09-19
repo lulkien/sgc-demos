@@ -130,8 +130,7 @@ fn drain(rx: &Receiver<FetchOutcome>) -> Option<FetchOutcome> {
 
 /// Load a DejaVu font into the process-global fontique collection. The board
 /// image ships neither fontconfig nor freetype, so the system font source is
-/// empty and the text pipeline needs the file registered directly (the same
-/// trick slint-lease-client uses).
+/// empty and the text pipeline needs the file registered directly.
 pub(crate) fn register_font() {
     const CANDIDATES: [&str; 3] = [
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",

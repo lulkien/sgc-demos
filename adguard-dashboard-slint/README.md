@@ -120,8 +120,8 @@ small), which suits an AdGuard Home on the loopback.
     just build-gnu-aarch64-input    # the board: GPU + input (cursor, Ctrl+Alt+Backspace)
 
 The arm64 build needs `cargo`, the `aarch64-unknown-linux-gnu` target, and the
-arm64 pkg-config files for freetype (fontique); see the Justfile and
-`../slint-lease-client/Cargo.toml` for the flavor matrix. slint itself comes from
+arm64 pkg-config files for freetype (fontique); the Justfile lists the flavors.
+slint itself comes from
 the fork as a git dependency (branch `dev/1.18-sgc`), so the first build
 fetches and compiles it.
 
@@ -138,8 +138,8 @@ app apart from the LVGL dashboard, whose comm would otherwise truncate to the
 same `adguard-dashboa`.
 
 The board image ships neither fontconfig nor freetype, so the app registers
-`DejaVuSans.ttf` into the text pipeline itself at startup (the same trick
-`slint-lease-client` uses); without that file, text has no font source.
+`DejaVuSans.ttf` into the text pipeline itself at startup; without that file,
+text has no font source.
 
 Logging follows `RUST_LOG` (`log` + `env_logger`, default `info`). The
 per-refresh progress line is `debug`, so the journal carries only state changes

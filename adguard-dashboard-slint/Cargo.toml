@@ -5,9 +5,8 @@ version = "0.1.0"
 edition = "2021"
 publish = false
 
-# Standalone project (no workspace), mirroring slint-lease-client: slint comes
-# from the fork as a git dependency, and the crate opts out of any enclosing
-# workspace.
+# Standalone project (no workspace): slint comes from the fork as a git
+# dependency, and the crate opts out of any enclosing workspace.
 [workspace]
 
 # Renderer matrix:

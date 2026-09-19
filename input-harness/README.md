@@ -40,8 +40,8 @@ Copy the two tools to `/root` (they run as root: uinput and the @sgc socket):
     just build-gnu-aarch64
     scp target/aarch64-unknown-linux-gnu/release/{uinput-inject,sgc-steal} root@<board>:/root/
 
-The client under test must be input-capable (`slint-lease-client --features input`,
-or the dashboard built with `--features input`) and installed at `/root/lease-app`
+The client under test must be input-capable (the dashboard built with
+`--features input`) and installed at `/root/lease-app`
 by default (`APP=` overrides). The signal used by the driver is the backend's
 Ctrl+Alt+Backspace quit: **the app disappearing proves the key arrived.**
 

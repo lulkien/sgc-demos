@@ -20,7 +20,7 @@
 #
 # Prerequisites on the board: uinput-inject + sgc-steal in /root (see README),
 # the uinput module loaded (`modprobe uinput`), and an input-capable client built
-# for the board (slint-lease-client --features input, or the dashboard).
+# for the board (the dashboard with --features input).
 set -euo pipefail
 
 BOARD="${BOARD:-root@10.21.50.50}"

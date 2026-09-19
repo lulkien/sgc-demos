@@ -1,4 +1,4 @@
-# Build recipes for the host and the board (aarch64), mirroring slint-lease-client.
+# Build recipes for the host and the board (aarch64).
 #
 #   just                    release build for the current host
 #   just build-gnu-aarch64  dynamic aarch64 (gnu) build for the board
