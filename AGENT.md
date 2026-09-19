@@ -1,14 +1,13 @@
 # AGENT.md — sgc-demos
 
 ## Purpose
-Standalone demo clients — and one real application — for the simple-graphics-controller stack. Every directory is its own project (no workspace span): the Rust demos each have their own Cargo.toml and git-dep the slint fork branch `dev/1.18-sgc`, `c-samples` is a Meson project, `adguard-dashboard` is a CMake project using the lvgl fork. Demos demonstrate client-side resource ownership patterns, event loops, and protocol interaction with the `@sgc` daemon.
+The two applications and the test tooling for the simple-graphics-controller stack. Every directory is its own project (no workspace span): `adguard-dashboard-slint` is a Cargo project that git-deps the slint fork branch `dev/1.18-sgc`, `adguard-dashboard` is a CMake project using the lvgl fork, `input-harness` is the test tooling. Both applications render through the `@sgc` daemon and own nothing of the session themselves — the frameworks' backends/drivers do.
 
 Nothing here builds against a sibling checkout: dependencies arrive as git refs, git submodules or vendored artifacts (see "C Projects" below).
 
 ## Demo Portfolio
 | Demo | Backend | Features | Purpose |
 |---|---|---|---|
-| `c-samples` | DRM (Meson) | `sgc-drm-c`, `sgc-drm-cpp` | C and C++ clients against the libsgc C ABI; takes the archive and headers through `-Dsgc_dir=` (predates the vendoring rule below) |
 | `adguard-dashboard` | DRM + LVGL (CMake) | `LV_USE_SGC`, no input | A real application: AdGuard Home's statistics page in LVGL, rendered through the daemon via the lvgl fork. Vendored libsgc, submoduled cJSON/tomlc99, committed lv_conf.h, `--self-check` pixel read-back |
 | `adguard-dashboard-slint` | DRM + Slint (Cargo) | `backend-linuxsgc`, `femtovg` (GPU) + `software` fallback, `input` opt-in | The same dashboard as a Slint UI: same layout, same `/etc/agh-dash/config.toml`, worker thread for the API, offscreen `--self-check` that counts pixels; `--features input` adds the mouse cursor and Ctrl+Alt+Backspace |
 | `input-harness` | test tooling (no client) | `uinput-inject`, `sgc-steal` | Virtual keyboard/mouse/touchscreen via `/dev/uinput` plus a resource steal probe, driving the revoke/re-grant cycle; `scripts/input-resume-test.sh` (8 steps) asserts the running daemon adopts the virtual device (no restart), that a device created under a running CLIENT reaches it (the daemon pushes its resource list), that input delivery survives a re-grant (negative control included), and that the daemon withdraws the device once its injector dies |
@@ -25,7 +24,7 @@ Nothing here builds against a sibling checkout: dependencies arrive as git refs,
 the same screen, from the same `/etc/agh-dash/config.toml`, and must not build
 against a sibling checkout:
 
-- **No path dependencies.** Published crates (libsgc-rs, from crates.io) and git refs are both fine — never `../`. lvgl comes from the fork by git ref (`LVGL_REPO` / `LVGL_REF` in `adguard-dashboard/CMakeLists.txt`). libsgc is either the vendored prebuilt archive (`adguard-dashboard/third_party/libsgc`, whose `REF` records the libsgc-c commit and whose README records provenance), or fetched and built by ref (`-DSGC_REF=`, needs cargo), or an archive built elsewhere (`-DSGC_ARCHIVE=`). `c-samples` predates this rule and still takes its archive + headers through `-Dsgc_dir=`.
+- **No path dependencies.** Published crates (libsgc-rs, from crates.io) and git refs are both fine — never `../`. lvgl comes from the fork by git ref (`LVGL_REPO` / `LVGL_REF` in `adguard-dashboard/CMakeLists.txt`). libsgc is either the vendored prebuilt archive (`adguard-dashboard/third_party/libsgc`, whose `REF` records the libsgc-c commit and whose README records provenance), or fetched and built by ref (`-DSGC_REF=`, needs cargo), or an archive built elsewhere (`-DSGC_ARCHIVE=`).
 - **Third-party code is submodules or vendored headers, not copies.** cJSON and tomlc99 are git submodules under `adguard-dashboard/third_party/`; curl's public headers are vendored because upstream curl is a large repo, and they are only needed on hosts without `libcurl4-gnutls-dev`.
 - **`lv_conf.h` is committed** (the `--sgc --no-input` variant), so no build step generates configuration. `scripts/gen-lv-conf.sh` regenerates it only when the lvgl ref moves; `scripts/vendor-libsgc.sh` refreshes the vendored archive.
 - **Cross build** (x86_64 host → aarch64 board): `cmake -B build-arm64 -DCMAKE_TOOLCHAIN_FILE=toolchain-aarch64.cmake`, then `cmake --build build-arm64 -j`. The toolchain file points pkg-config at the arm64 multiarch `.pc` files.
@@ -96,7 +95,7 @@ client.acquire(Resource::Input(InputResource::Mouse(0)))?;
 ## Build & Run Conventions
 - Each project is standalone; build it from its own directory (`cargo build --release`, `just`, cmake or meson)
 - Run as **root** (opens `/dev/dri` + `/dev/input`): `RUST_LOG=info ./target/release/<demo>`
-- C projects build with CMake (`adguard-dashboard`) or Meson (`c-samples`); cross builds use `toolchain-aarch64.cmake` plus the `aarch64-linux-gnu-*` host toolchain
+- C projects build with CMake (`adguard-dashboard`); cross builds use `toolchain-aarch64.cmake` plus the `aarch64-linux-gnu-*` host toolchain
 - `adguard-dashboard` on a board: copy the binary next to the other clients and run `scripts/start-dashboard.sh`; `--config <path>` overrides `/etc/agh-dash/config.toml`, and the AdGuard credentials live only in that file (root:root 0600) — never in git
 - `adguard-dashboard --self-check` runs the pixel read-back once data has arrived, prints it, and exits
 

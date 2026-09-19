@@ -1,6 +1,0 @@
-option(
-  'sgc_dir',
-  type : 'string',
-  value : '../../libsgc-c',
-  description : 'Path to the libsgc-c repo (default: sibling checkout). libsgc.a is taken from <sgc_dir>/target[/aarch64-unknown-linux-gnu]/<debug|release> per build type.'
-)
