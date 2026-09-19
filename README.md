@@ -16,9 +16,15 @@ backend crate or SgcClient.
 - adguard-dashboard-slint — Rust + Slint: the same dashboard as a Slint UI, same
   layout and same config file, software renderer, no input feature, offscreen
   `--self-check`
+- ir-remote-test — Rust + Slint: an IR remote test screen that shows every key
+  the seat delivers, plus an optional raw-evdev read-back (`--raw`) for the keys
+  the xkb mapping drops; ships the remote's keymap (`keymap/x98h.toml`), the unit
+  that loads it (`packaging/ir-keymap.service`) and the procedure
+  (`docs/ir-keymap.md`)
 
-Both dashboards read `/etc/agh-dash/config.toml` and are alternatives: there is
-one DRM lease, so only one of them runs at a time.
+The two dashboards read `/etc/agh-dash/config.toml` and are alternatives: there is
+one DRM lease, so only one of them runs at a time. `ir-remote-test` is a test
+tool — it needs the seat too, so it runs instead of a dashboard, not beside it.
 
 Build each from its own directory (`just` for the current host,
 `just build-gnu-aarch64` for the board; the two dashboards document their own

@@ -1,0 +1,79 @@
+import { Theme } from "theme.slint";
+import { KeyRow } from "types.slint";
+import { KeyPanel } from "key-panel.slint";
+import { EventLog } from "event-log.slint";
+
+// The remote-test screen: it holds the @sgc seat (a DRM lease plus the input
+// devices the daemon granted) and shows every key the backend delivers. The
+// window knows nothing about @sgc - the linuxsgc backend owns the session, and
+// what lands here are ordinary Slint key events.
+export component MainWindow inherits Window {
+    in property <string> last-symbol: "-";
+    in property <string> last-name: "waiting for a key";
+    in property <string> last-detail: "";
+    in property <string> count-label: "0 events";
+    in property <string> mode-line: "";
+    in property <string> empty-hint: "";
+    in property <[KeyRow]> rows;
+
+    // (text, is-a-press) for every key the backend delivers.
+    callback key-event(string, bool);
+
+    init => {
+        Theme.panel-w = self.width;
+        Theme.panel-h = self.height;
+        key-handler.focus();
+    }
+    changed width => { Theme.panel-w = self.width; }
+    changed height => { Theme.panel-h = self.height; }
+
+    forward-focus: key-handler;
+
+    background: Theme.page;
+
+    VerticalLayout {
+        padding: Theme.page-padding;
+        spacing: Theme.page-gap;
+
+        Text {
+            text: "IR remote test - keys delivered by the @sgc seat";
+            color: Theme.text;
+            font-size: Theme.heading-size;
+            height: Theme.heading-line;
+        }
+
+        KeyPanel {
+            height: 230px * Theme.scale;
+            symbol: root.last-symbol;
+            name: root.last-name;
+            detail: root.last-detail;
+            count-label: root.count-label;
+        }
+
+        EventLog {
+            vertical-stretch: 1;
+            rows: root.rows;
+            empty-hint: root.empty-hint;
+        }
+
+        Text {
+            text: root.mode-line;
+            color: Theme.muted;
+            font-size: Theme.mono-size;
+            height: Theme.mono-line;
+        }
+    }
+
+    // capture-* fires before focus routing, so every delivered key is seen even
+    // if a future widget takes focus away from this scope.
+    key-handler := FocusScope {
+        capture-key-pressed(event) => {
+            root.key-event(event.text, true);
+            return accept;
+        }
+        capture-key-released(event) => {
+            root.key-event(event.text, false);
+            return accept;
+        }
+    }
+}

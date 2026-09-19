@@ -1,0 +1,63 @@
+import { Theme } from "theme.slint";
+import { KeyRow } from "types.slint";
+
+// Newest-first log of everything both layers saw, so a press that the Slint path
+// drops (a keysym without a character never becomes a Slint key event) is still
+// visible in the raw rows beside it. The rows are a handful, not a scrollback:
+// the journal keeps the whole history, and no ListView means this project needs
+// no std-widgets.
+export component EventLog inherits Rectangle {
+    in property <[KeyRow]> rows;
+    in property <string> empty-hint: "";
+
+    background: Theme.card;
+    border-radius: Theme.card-radius;
+
+    VerticalLayout {
+        padding: Theme.card-padding;
+        spacing: 4px * Theme.scale;
+
+        Text {
+            text: "events (newest first - the journal keeps the full log)";
+            color: Theme.muted;
+            font-size: Theme.body-size;
+            height: Theme.body-line;
+        }
+
+        if root.rows.length == 0 : Text {
+            text: root.empty-hint;
+            color: Theme.muted;
+            font-size: Theme.mono-size;
+            wrap: word-wrap;
+        }
+
+        for row in root.rows : HorizontalLayout {
+            height: Theme.mono-line;
+            spacing: 10px * Theme.scale;
+
+            Text {
+                text: "\{row.seq}";
+                color: Theme.muted;
+                font-size: Theme.mono-size;
+                width: 44px * Theme.scale;
+            }
+            Text {
+                text: row.source;
+                color: row.source == "raw" ? Theme.raw : Theme.seat;
+                font-size: Theme.mono-size;
+                width: 48px * Theme.scale;
+            }
+            Text {
+                text: row.symbol;
+                color: Theme.text;
+                font-size: Theme.mono-size;
+                width: 200px * Theme.scale;
+            }
+            Text {
+                text: row.detail;
+                color: Theme.muted;
+                font-size: Theme.mono-size;
+            }
+        }
+    }
+}

@@ -1,0 +1,28 @@
+# Build recipes for the host and the board (aarch64).
+#
+#   just                        release build for this host (GPU + input)
+#   just build-gnu-aarch64      aarch64 (gnu) build for the board - the flavor
+#                               to deploy: femtovg over gbm/EGL (the Mali GPU)
+#                               plus input, and no software renderer at all
+#   just clean                  remove ./target
+#
+# The board runs glibc. There is no CPU flavor: the fork's linuxsgc backend
+# survives a lease revoke on the GL path, so a software fallback would only
+# mask a broken GL userspace (see Cargo.toml). `input` is part of the default
+# feature set for the same kind of reason - and libinput cannot be linked into a
+# static musl build, so this project has a gnu flavor only.
+
+default: build
+
+build:
+    cargo build --release
+
+pkg_env := 'PKG_CONFIG_ALLOW_CROSS=1 PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig'
+
+# Board build. Links the board's libgbm/libEGL/libGLESv2 and libinput
+# dynamically, so no PKG_CONFIG_ALL_STATIC anywhere.
+build-gnu-aarch64:
+    {{pkg_env}} cargo build --release --target aarch64-unknown-linux-gnu
+
+clean:
+    cargo clean

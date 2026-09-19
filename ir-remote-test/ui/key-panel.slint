@@ -1,0 +1,48 @@
+import { Theme } from "theme.slint";
+
+// The last key the window received, as large as the panel allows.
+export component KeyPanel inherits Rectangle {
+    in property <string> symbol: "-";
+    in property <string> name: "waiting for a key";
+    in property <string> detail: "";
+    in property <string> count-label: "0 events";
+
+    background: Theme.card;
+    border-radius: Theme.card-radius;
+
+    Text {
+        text: root.count-label;
+        color: Theme.muted;
+        font-size: Theme.mono-size;
+        x: Theme.card-padding;
+        y: Theme.card-padding;
+    }
+
+    VerticalLayout {
+        padding: Theme.card-padding;
+        spacing: 2px * Theme.scale;
+        alignment: center;
+
+        Text {
+            text: root.symbol;
+            color: Theme.text;
+            font-size: Theme.glyph-size;
+            horizontal-alignment: center;
+            height: Theme.glyph-size * 1.2;
+        }
+        Text {
+            text: root.name;
+            color: Theme.seat;
+            font-size: Theme.heading-size;
+            horizontal-alignment: center;
+            height: Theme.heading-line;
+        }
+        Text {
+            text: root.detail;
+            color: Theme.muted;
+            font-size: Theme.mono-size;
+            horizontal-alignment: center;
+            height: Theme.mono-line;
+        }
+    }
+}

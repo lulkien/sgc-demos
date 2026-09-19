@@ -1,0 +1,18 @@
+# Applies the IR remote keymap at boot. The board's DT does not carry
+# `linux,rc-map-name` for the sunxi-ir node, so without this unit a reboot
+# leaves the device with no keys at all (rc-empty) and @sgc never advertises it.
+#
+# Install to /etc/systemd/system/ir-keymap.service, then
+#   systemctl daemon-reload && systemctl enable --now ir-keymap.service
+# See ../docs/ir-keymap.md.
+[Unit]
+Description=Load IR remote keymap for the front-panel receiver (sunxi-ir)
+After=multi-user.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -c "for i in $(seq 1 30); do [ -e /dev/lirc0 ] && break; sleep 1; done; exec ir-keytable -s rc1 -c -w /etc/rc_keymaps/x98h.toml"
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,48 @@
+# X98H / Z8Pro (H618 TV box) front-panel IR remote - protocol nec, variant necx
+#
+# Scancodes verified with two labelled press sweeps in different orders on
+# 10.21.50.53, so every button is identified twice over. `ir-keytable -t` prints
+# the protocol and scancode; this file stores exactly those values.
+#
+# Install: /etc/rc_keymaps/x98h.toml, applied by ../packaging/ir-keymap.service
+# on rc1 (the sunxi-ir device; rc0 is the dw_hdmi CEC receiver). See
+# ../docs/ir-keymap.md for the whole procedure.
+[[protocols]]
+name = "x98h"
+protocol = "nec"
+variant = "necx"
+[protocols.scancodes]
+0x9f70a = "KEY_POWER"
+0x9f71f = "KEY_OK"
+0x9f700 = "KEY_UP"
+0x9f701 = "KEY_DOWN"
+0x9f703 = "KEY_LEFT"
+0x9f702 = "KEY_RIGHT"
+0x9f71c = "KEY_BACK"
+0x9f70c = "KEY_HOME"
+0x9f71a = "KEY_MENU"
+0x9f758 = "KEY_VOLUMEUP"
+0x9f75d = "KEY_VOLUMEDOWN"
+0x9f70d = "KEY_MUTE"
+0x9f751 = "KEY_CHANNELUP"
+0x9f752 = "KEY_CHANNELDOWN"
+0x9f71b = "KEY_TV"
+0x9f780 = "KEY_SETUP"
+0x9f74a = "KEY_MODE"
+0x9f722 = "KEY_ASSISTANT"
+# The four launch buttons. These are colour keys because Linux has no
+# KEY_YOUTUBE / KEY_NETFLIX; KEY_F13..F16 is the alternative and is the only
+# mapping that lets a Slint/libinput consumer tell them apart (they arrive as
+# U+F710..U+F713 instead of the nameless U+0000 a colour key produces).
+0x9f772 = "KEY_RED"      # youtube
+0x9f786 = "KEY_GREEN"    # netflix
+0x9f771 = "KEY_YELLOW"   # google play
+0x9f773 = "KEY_BLUE"     # prime video
+# --- The typing key the @sgc daemon insists on -------------------------------
+# The daemon advertises an Input device only if it classifies as a
+# keyboard/mouse/touch, and its keyboard rule wants one key in ESC..Space
+# (1..=57) - a TV remote has none (its lowest is KEY_HOME = 102). 0x9f7ff is a
+# scancode this remote never sends, so this entry adds the capability the
+# classifier looks for without changing what any button does. Drop this line
+# once the daemon's classify() admits consumer devices on their own merits.
+0x9f7ff = "KEY_ESC"

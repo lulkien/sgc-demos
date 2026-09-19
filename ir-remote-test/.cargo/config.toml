@@ -1,0 +1,5 @@
+# Cross-linker for the board build (aarch64, gnu/glibc, dynamically linked).
+# This host's cross toolchain is aarch64-linux-gnu-gcc; pkg-config is pointed at
+# the arm64 .pc files by the Justfile.
+[target.aarch64-unknown-linux-gnu]
+linker = "aarch64-linux-gnu-gcc"

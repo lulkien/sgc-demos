@@ -1,0 +1,46 @@
+// Palette, type scale and spacing for the remote test screen. Same palette as
+// the two dashboards so a board switch needs no eye adjustment.
+//
+// Every size is derived from the PANEL, not from a canvas of its own: the root
+// window publishes its size into panel-w/panel-h (see main.slint) and the
+// lengths below follow it. There is deliberately no declared window size
+// anywhere - a declared one PINS the layout to it, and the backend sizes the
+// window from the lease's mode instead.
+
+export global Theme {
+    // The panel the page is actually drawn on; the root window sets these.
+    in-out property <length> panel-w: 1024px;
+    in-out property <length> panel-h: 600px;
+
+    // 1.0 for any panel at least 1000px tall; shorter panels taper, floored at
+    // 0.8, because below that the type stops being readable.
+    out property <float> scale: max(0.8, min(1.0, self.panel-h / 1000px));
+
+    out property <length> heading-size: 22px * self.scale;
+    out property <length> glyph-size: 56px * self.scale;
+    out property <length> body-size: 16px * self.scale;
+    out property <length> mono-size: 15px * self.scale;
+
+    // One line box per text size, so explicit heights in the markup add up
+    // exactly instead of depending on font metrics.
+    out property <length> heading-line: self.heading-size * 1.25;
+    out property <length> body-line: self.body-size * 1.25;
+    out property <length> mono-line: self.mono-size * 1.35;
+
+    out property <length> page-padding: 16px * self.scale;
+    out property <length> page-gap: 12px * self.scale;
+    out property <length> card-padding: 12px * self.scale;
+    out property <length> card-radius: 10px * self.scale;
+
+    // The width the panels lay out in: the panel minus the page padding.
+    out property <length> content-w: self.panel-w - self.page-padding * 2;
+
+    out property <color> page: #0F1419;
+    out property <color> card: #19212A;
+    out property <color> grid: #2B3644;
+    out property <color> text: #E6EDF3;
+    out property <color> muted: #8B98A5;
+    // The two sources a row can come from, so a glance separates the layers.
+    out property <color> seat: #4FA3E3;
+    out property <color> raw: #E8843C;
+}

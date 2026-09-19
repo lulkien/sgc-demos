@@ -1,0 +1,12 @@
+// One row per key event, whatever layer reported it.
+export struct KeyRow {
+    seq: int,
+    // "seat" - delivered by the window as a Slint key event (through @sgc's
+    // granted device, libinput and xkb); "raw" - read straight off the evdev
+    // node by the diagnostic panel.
+    source: string,
+    // The character the layer delivered, or a name for a non-printing one.
+    symbol: string,
+    // Codepoint / keycode detail, and whether it was a press or a release.
+    detail: string,
+}
