@@ -38,11 +38,11 @@ femtovg = ["slint/renderer-femtovg"]
 input = ["slint/backend-linuxsgc-libinput"]
 
 [dependencies]
-slint = { git = "https://github.com/lulkien/slint.git", branch = "sgc-lease-1.17", default-features = false, features = [
+slint = { git = "https://github.com/lulkien/slint.git", branch = "dev/1.18-sgc", default-features = false, features = [
     "std",
     "backend-linuxsgc",
-    "compat-1-2",
-    "unstable-fontique-010",
+    "compat-1-18",
+    "unstable-fontique-011",
 ] }
 # Plain HTTP only (default-features = false drops TLS): the board's AdGuard Home
 # is served on the loopback, and a TLS stack would bloat an arm64 cross build.
@@ -61,7 +61,7 @@ env_logger = { version = "0.11", default-features = false }
 
 # Compiles ui/main.slint to Rust; same fork rev as the runtime dependency above.
 [build-dependencies]
-slint-build = { git = "https://github.com/lulkien/slint.git", branch = "sgc-lease-1.17" }
+slint-build = { git = "https://github.com/lulkien/slint.git", branch = "dev/1.18-sgc" }
 
 [profile.release]
 strip = true

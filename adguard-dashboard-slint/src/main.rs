@@ -143,10 +143,10 @@ pub(crate) fn register_font() {
         let Ok(bytes) = std::fs::read(path) else {
             continue;
         };
-        use slint::fontique_010::fontique;
+        use slint::fontique_011::fontique;
 
         let blob = fontique::Blob::new(std::sync::Arc::new(bytes));
-        let mut collection = slint::fontique_010::shared_collection();
+        let mut collection = slint::fontique_011::shared_collection();
         let count = collection.register_fonts(blob, None).len();
         log::info!("registered {count} font(s) from {path}");
         return;
