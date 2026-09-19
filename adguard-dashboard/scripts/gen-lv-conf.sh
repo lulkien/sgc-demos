@@ -6,8 +6,9 @@
 #
 #   ./gen-lv-conf.sh [--gbm] [--sgc] [lvgl dir] [output lv_conf.h]
 #
-# --gbm               configure LV_USE_LINUX_DRM_GBM_BUFFERS=1 (GBM/DMA-BUF
-#                     buffers instead of dumb buffers); default output is then
+# --gbm               configure the DRM driver for GBM/DMA-BUF scanout buffers
+#                     instead of dumb buffers (v9.6 spells this as the
+#                     LV_LINUX_DRM_BACKEND choice); default output is then
 #                     lv_conf_gbm.h instead of lv_conf.h.
 # --sgc               configure LV_USE_SGC=1 (take the DRM lease and the input
 #                     devices from the @sgc daemon); default output is then
@@ -87,10 +88,17 @@ sed -i 's|^#if 0 /\* Set this to|#if 1 /* Set this to|' "$CONF"
 # ---------------------------------------------------------------------------
 
 # Display / DRM driver
-set_conf LV_COLOR_DEPTH                    32                 # XRGB8888 dumb buffers
+set_conf LV_COLOR_FORMAT_DEFAULT           LV_COLOR_FORMAT_XRGB8888   # XRGB8888 scanout
 set_conf LV_DEF_REFR_PERIOD                16
 set_conf LV_USE_LINUX_DRM                  1
-set_conf LV_USE_LINUX_DRM_GBM_BUFFERS      "$GBM"
+# v9.6 spells the scanout flavor as a backend choice, not a buffer define:
+# dumb buffers (FBDEV) by default, GBM/DMA-BUF with --gbm
+set_conf LV_LINUX_DRM_AUTO_BACKEND         0
+if [ "$GBM" -eq 1 ]; then
+    set_conf LV_LINUX_DRM_BACKEND          LV_LINUX_DRM_BACKEND_GBM
+else
+    set_conf LV_LINUX_DRM_BACKEND          LV_LINUX_DRM_BACKEND_FBDEV
+fi
 
 # @sgc daemon driver (--sgc): DRM lease from the daemon, and (unless
 # --no-input) its input devices for an app that can consume them.
@@ -135,7 +143,7 @@ elif [ "$GBM" -eq 1 ]; then
 fi
 echo "generated $CONF from $(basename "$TPL") (variant: $variant)"
 grep -nE '^#if 1 /\* Set this to|Set this to "1" to enable content' "$CONF" | head -2
-for name in LV_COLOR_DEPTH LV_DEF_REFR_PERIOD LV_USE_LINUX_DRM LV_USE_LINUX_DRM_GBM_BUFFERS \
+for name in LV_COLOR_FORMAT_DEFAULT LV_DEF_REFR_PERIOD LV_USE_LINUX_DRM LV_LINUX_DRM_BACKEND \
             LV_USE_SGC \
             LV_USE_LOG LV_LOG_LEVEL LV_LOG_PRINTF LV_USE_SYSMON LV_USE_PERF_MONITOR \
             LV_USE_PERF_MONITOR_LOG_MODE LV_MEM_SIZE LV_BUILD_DEMOS LV_USE_DEMO_WIDGETS \

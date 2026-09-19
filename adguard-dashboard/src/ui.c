@@ -93,7 +93,7 @@ static void style_card(lv_obj_t * obj)
     lv_obj_set_style_radius(obj, 10, 0);
     lv_obj_set_style_pad_all(obj, 12, 0);
     lv_obj_set_style_pad_gap(obj, 6, 0);
-    lv_obj_remove_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_scrollable(obj, false);
 }
 
 static lv_obj_t * make_row(lv_obj_t * parent, int32_t height_pct)
@@ -105,7 +105,7 @@ static lv_obj_t * make_row(lv_obj_t * parent, int32_t height_pct)
     else lv_obj_set_flex_grow(row, 1);
     lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
     lv_obj_set_style_pad_gap(row, 12, 0);
-    lv_obj_remove_flag(row, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_scrollable(row, false);
     return row;
 }
 
@@ -146,7 +146,7 @@ static lv_obj_t * make_chart_card(lv_obj_t * parent, const char * title, lv_colo
     lv_obj_set_style_border_width(chart, 0, 0);
     lv_obj_set_style_line_color(chart, COL_GRID, LV_PART_MAIN);
     lv_obj_set_style_pad_all(chart, 0, 0);
-    lv_obj_remove_flag(chart, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_scrollable(chart, false);
 
     *series_out = lv_chart_add_series(chart, color, LV_CHART_AXIS_PRIMARY_Y);
     lv_obj_set_style_bg_color(chart, color, LV_PART_ITEMS); /* bar colour */
@@ -155,7 +155,7 @@ static lv_obj_t * make_chart_card(lv_obj_t * parent, const char * title, lv_colo
      * card looking broken. */
     lv_obj_t * empty = make_label(chart, "no activity in this interval", &lv_font_montserrat_14, COL_MUTED);
     lv_obj_center(empty);
-    lv_obj_add_flag(empty, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_set_hidden(empty, true);
     *empty_out = empty;
 
     *chart_out = chart;
@@ -224,7 +224,7 @@ static lv_obj_t * make_table_card(lv_obj_t * parent, const char * title, const c
     lv_obj_set_style_border_color(table, COL_GRID, LV_PART_ITEMS);
     lv_obj_set_style_border_width(table, 1, LV_PART_ITEMS);
     lv_obj_set_style_pad_all(table, 6, LV_PART_ITEMS);
-    lv_obj_remove_flag(table, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_scrollable(table, false);
 
     lv_table_set_cell_value(table, 0, 0, col0);
     lv_table_set_cell_value(table, 0, 1, col1);
@@ -249,7 +249,7 @@ agh_dashboard_t * agh_ui_create(lv_display_t * disp, const char * source)
     lv_obj_set_flex_flow(scr, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_style_pad_all(scr, 16, 0);
     lv_obj_set_style_pad_gap(scr, 12, 0);
-    lv_obj_remove_flag(scr, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_scrollable(scr, false);
 
     /* header: title on the left, protection badge and refresh status on the right */
     lv_obj_t * head = make_row(scr, -1);
@@ -264,7 +264,7 @@ agh_dashboard_t * agh_ui_create(lv_display_t * disp, const char * source)
     lv_obj_set_flex_flow(head_right, LV_FLEX_FLOW_ROW);
     lv_obj_set_style_pad_gap(head_right, 14, 0);
     lv_obj_set_flex_align(head_right, LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-    lv_obj_remove_flag(head_right, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_scrollable(head_right, false);
 
     d->status_lbl = make_label(head_right, "starting", &lv_font_montserrat_16, COL_MUTED);
 
@@ -431,8 +431,8 @@ void agh_ui_update(agh_dashboard_t * d, const agh_snapshot_t * s)
             sum += (uint64_t)v;
             if(v > max) max = v;
         }
-        if(sum == 0) lv_obj_remove_flag(d->empty[i], LV_OBJ_FLAG_HIDDEN);
-        else lv_obj_add_flag(d->empty[i], LV_OBJ_FLAG_HIDDEN);
+        if(sum == 0) lv_obj_set_hidden(d->empty[i], false);
+        else lv_obj_set_hidden(d->empty[i], true);
         lv_chart_set_point_count(d->chart[i], buckets);
         lv_chart_set_series_values(d->chart[i], d->series[i], values, buckets);
         lv_chart_set_axis_range(d->chart[i], LV_CHART_AXIS_PRIMARY_Y, 0, max + max / 8 + 1);
