@@ -9,7 +9,7 @@ project(adguard_dashboard C)
 # HTTP is libcurl. No sibling checkout, no config-generation step.
 
 set(LVGL_REPO  "https://github.com/lulkien/lvgl.git" CACHE STRING "lvgl fork repository")
-set(LVGL_REF   "sgc/v9.5"                            CACHE STRING "lvgl fork branch or tag")
+set(LVGL_REF   "dev/v9.6-sgc"                        CACHE STRING "lvgl fork branch or tag")
 set(LVGL_ARCHIVE_URL ""                              CACHE STRING "fetch this archive instead of cloning")
 set(SGC_REPO  "https://github.com/lulkien/libsgc-c.git"    CACHE STRING "libsgc-c repository")
 set(SGC_REF   "800762c79e2ab45a234f231477b69b36b6c380a4"   CACHE STRING "libsgc-c commit, tag or branch")
