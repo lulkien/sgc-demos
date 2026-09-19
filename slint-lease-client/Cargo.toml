@@ -6,7 +6,7 @@ edition = "2021"
 publish = false
 
 # Standalone demo (own project, no workspace): depends on the slint fork
-# (branch sgc-lease-1.17) as a git dependency. The empty [workspace] table
+# (branch dev/1.18-sgc) as a git dependency. The empty [workspace] table
 # opts this crate out of any enclosing workspace.
 [workspace]
 #
@@ -44,16 +44,16 @@ femtovg = ["slint/renderer-femtovg"]
 input = ["slint/backend-linuxsgc-libinput"]
 
 [dependencies]
-slint = { git = "https://github.com/lulkien/slint.git", branch = "sgc-lease-1.17", default-features = false, features = [
+slint = { git = "https://github.com/lulkien/slint.git", branch = "dev/1.18-sgc", default-features = false, features = [
     "std",
     "backend-linuxsgc",
-    "compat-1-2",
-    "unstable-fontique-010",
+    "compat-1-18",
+    "unstable-fontique-011",
 ] }
 anyhow = "1"
 
 # Compiles ui/main.slint to Rust in build.rs; same fork rev as the `slint`
 # runtime above so the generated code matches the compiled runtime.
 [build-dependencies]
-slint-build = { git = "https://github.com/lulkien/slint.git", branch = "sgc-lease-1.17" }
+slint-build = { git = "https://github.com/lulkien/slint.git", branch = "dev/1.18-sgc" }
 

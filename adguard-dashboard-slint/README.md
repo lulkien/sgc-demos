@@ -122,7 +122,7 @@ small), which suits an AdGuard Home on the loopback.
 The arm64 build needs `cargo`, the `aarch64-unknown-linux-gnu` target, and the
 arm64 pkg-config files for freetype (fontique); see the Justfile and
 `../slint-lease-client/Cargo.toml` for the flavor matrix. slint itself comes from
-the fork as a git dependency (branch `sgc-lease-1.17`), so the first build
+the fork as a git dependency (branch `dev/1.18-sgc`), so the first build
 fetches and compiles it.
 
 ## Run on the board

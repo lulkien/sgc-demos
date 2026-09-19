@@ -1,7 +1,7 @@
 # AGENT.md — sgc-demos
 
 ## Purpose
-Standalone demo clients — and one real application — for the simple-graphics-controller stack. Every directory is its own project (no workspace span): the Rust demos each have their own Cargo.toml and git-dep the slint fork branch `sgc-lease-1.17`, `c-samples` is a Meson project, `adguard-dashboard` is a CMake project using the lvgl fork. Demos demonstrate client-side resource ownership patterns, event loops, and protocol interaction with the `@sgc` daemon.
+Standalone demo clients — and one real application — for the simple-graphics-controller stack. Every directory is its own project (no workspace span): the Rust demos each have their own Cargo.toml and git-dep the slint fork branch `dev/1.18-sgc`, `c-samples` is a Meson project, `adguard-dashboard` is a CMake project using the lvgl fork. Demos demonstrate client-side resource ownership patterns, event loops, and protocol interaction with the `@sgc` daemon.
 
 Nothing here builds against a sibling checkout: dependencies arrive as git refs, git submodules or vendored artifacts (see "C Projects" below).
 

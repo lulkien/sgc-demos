@@ -5,7 +5,7 @@ directory is its own project (own Cargo.toml, its own Meson or CMake project).
 
 Dependencies arrive as published crates, git refs, git submodules or vendored
 artifacts; nothing builds against a sibling checkout. libsgc-rs comes from
-crates.io, the slint fork (branch `sgc-lease-1.17`) as a Cargo git dep, cJSON and
+crates.io, the slint fork (branch `dev/1.18-sgc`) as a Cargo git dep, cJSON and
 tomlc99 are git submodules, libsgc is a vendored archive, and lvgl comes from the
 fork by git ref. A Slint app enables only the `backend-linuxsgc` feature and never names the
 backend crate or SgcClient.

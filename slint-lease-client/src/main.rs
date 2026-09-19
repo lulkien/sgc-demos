@@ -1,5 +1,5 @@
 // Demo: run a Slint UI on a DRM lease granted by the simple-graphics-controller
-// daemon (@sgc), via the linuxsgc backend (slint fork, branch sgc-lease-1.17).
+// daemon (@sgc), via the linuxsgc backend (slint fork, branch dev/1.18-sgc).
 //
 // The backend owns the whole @sgc session: connecting to the daemon, acquiring
 // the card lease, and pumping the session — a revoke suspends rendering until
@@ -103,11 +103,11 @@ fn main() -> anyhow::Result<()> {
 /// Load a font file into the process-global fontique collection used by the
 /// text pipeline. Returns the number of fonts registered.
 fn register_font(path: &str) -> anyhow::Result<usize> {
-    use slint::fontique_010::fontique;
+    use slint::fontique_011::fontique;
 
     let bytes = std::fs::read(path).with_context(|| format!("reading font file {path}"))?;
     let blob = fontique::Blob::new(std::sync::Arc::new(bytes));
-    let mut collection = slint::fontique_010::shared_collection();
+    let mut collection = slint::fontique_011::shared_collection();
     let fonts = collection.register_fonts(blob, None);
     println!("registered {} font(s) from {path}", fonts.len());
     Ok(fonts.len())
